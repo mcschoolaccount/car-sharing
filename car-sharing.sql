@@ -5608,6 +5608,9 @@ ALTER TABLE `reservations_(rezerwacje)`
 --
 ALTER TABLE `vehicles_(pojazdy)`
   ADD CONSTRAINT `vehicles_(pojazdy)_ibfk_1` FOREIGN KEY (`insurance_id`) REFERENCES `insurances_(ubezpieczenia)` (`id`);
+
+CREATE VIEW get_top_5_active_customers AS SELECT `customers_(klienci)`.*, COUNT(`reservations_(rezerwacje)`.`id`) as reservation_amount FROM `customers_(klienci)` INNER JOIN `reservations_(rezerwacje)` ON `customers_(klienci)`.`id` = `reservations_(rezerwacje)`.`customer_id` GROUP BY `customers_(klienci)`.`id` ORDER BY reservation_amount DESC LIMIT 5;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
