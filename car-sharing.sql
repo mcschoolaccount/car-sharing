@@ -5433,7 +5433,7 @@ INSERT INTO `vehicles_(pojazdy)` (`id`, `vehicle_type`, `department_id`, `insura
 --
 DROP TABLE IF EXISTS `show_amount_of_available_vehicle_types`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `show_amount_of_available_vehicle_types`  AS SELECT `vehicles_(pojazdy)`.`vehicle_type` AS `vehicle_type`, count(`vehicles_(pojazdy)`.`vehicle_type`) AS `amount` FROM `vehicles_(pojazdy)` GROUP BY `vehicles_(pojazdy)`.`vehicle_type``vehicle_type`  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `show_amount_of_available_vehicle_types`  AS SELECT `vehicles_(pojazdy)`.`vehicle_type` AS `vehicle_type`, count(`vehicles_(pojazdy)`.`vehicle_type`) AS `amount` FROM `vehicles_(pojazdy)` GROUP BY `vehicles_(pojazdy)`.`vehicle_type`  ;
 
 -- --------------------------------------------------------
 
@@ -5442,7 +5442,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `show_amount_of_cars_by_availability`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `show_amount_of_cars_by_availability`  AS SELECT `vehicles_(pojazdy)`.`availability` AS `availability`, count(`vehicles_(pojazdy)`.`availability`) AS `amount` FROM `vehicles_(pojazdy)` GROUP BY `vehicles_(pojazdy)`.`availability``availability`  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `show_amount_of_cars_by_availability`  AS SELECT `vehicles_(pojazdy)`.`availability` AS `availability`, count(`vehicles_(pojazdy)`.`availability`) AS `amount` FROM `vehicles_(pojazdy)` GROUP BY `vehicles_(pojazdy)`.`availability`  ;
 
 --
 -- Indeksy dla zrzutów tabel
