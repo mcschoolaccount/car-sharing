@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 18 Gru 2023, 05:19
+-- Czas generowania: 10 Gru 2023, 22:33
 -- Wersja serwera: 10.4.24-MariaDB
 -- Wersja PHP: 8.1.6
 
@@ -18,18 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Baza danych: `tttt`
+-- Baza danych: `bbb`
 --
 
 DELIMITER $$
 --
 -- Procedury
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `available_cars_in_price_range` (IN `min_value` INT, IN `max_value` INT)   SELECT `id`, `rental_charge`, `brand`, `model`, `vehicle_type`, `vin`, `year_of_production`, `mileage`, `seats`, `department_id`, `insurance_id`
-FROM `vehicles_(pojazdy)` 
-WHERE `availability` = "AVAILABLE" AND `rental_charge` >= min_value AND `rental_charge` <= max_value
-ORDER BY `rental_charge`$$
-
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_departments_by_postcode` (`postcode` VARCHAR(5))   SELECT * from `departments_(placowki)` where `departments_(placowki)`.`zip_code` = `postcode`$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_income_in_specific_month_and_year` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(payment_amount) AS income
@@ -255,24 +250,6 @@ INSERT INTO `employees_(pracownicy)` (`id`, `deparment_id`, `first_name`, `last_
 (26, 5, 'Kristine', 'McKenzie', '1995-01-31', '211 Yost Shoal', 'Lake Sunny', '60454', 5189, 'CEO'),
 (27, 5, 'Mandy', 'Gulgowski', '1988-01-12', '53660 Myrtle River', 'Effertzport', '35365', 5897, 'CEO'),
 (28, 4, 'Andres', 'Zulauf', '1969-02-03', '344 Wisoky Springs', 'Lefflerfort', '41971', 2509, 'CEO');
-
--- --------------------------------------------------------
-
---
--- Zastąpiona struktura widoku `get_top_5_active_customers`
--- (Zobacz poniżej rzeczywisty widok)
---
-CREATE TABLE `get_top_5_active_customers` (
-`id` int(11)
-,`first_name` varchar(255)
-,`last_name` varchar(255)
-,`number` varchar(15)
-,`street_address` varchar(255)
-,`city` varchar(255)
-,`postal_code` varchar(5)
-,`license` varchar(255)
-,`reservation_amount` bigint(21)
-);
 
 -- --------------------------------------------------------
 
@@ -5452,20 +5429,11 @@ INSERT INTO `vehicles_(pojazdy)` (`id`, `vehicle_type`, `department_id`, `insura
 -- --------------------------------------------------------
 
 --
--- Struktura widoku `get_top_5_active_customers`
---
-DROP TABLE IF EXISTS `get_top_5_active_customers`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `get_top_5_active_customers`  AS SELECT `customers_(klienci)`.`id` AS `id`, `customers_(klienci)`.`first_name` AS `first_name`, `customers_(klienci)`.`last_name` AS `last_name`, `customers_(klienci)`.`number` AS `number`, `customers_(klienci)`.`street_address` AS `street_address`, `customers_(klienci)`.`city` AS `city`, `customers_(klienci)`.`postal_code` AS `postal_code`, `customers_(klienci)`.`license` AS `license`, count(`reservations_(rezerwacje)`.`id`) AS `reservation_amount` FROM (`customers_(klienci)` join `reservations_(rezerwacje)` on(`customers_(klienci)`.`id` = `reservations_(rezerwacje)`.`customer_id`)) GROUP BY `customers_(klienci)`.`id` ORDER BY count(`reservations_(rezerwacje)`.`id`) DESC LIMIT 0, 55  ;
-
--- --------------------------------------------------------
-
---
 -- Struktura widoku `show_amount_of_available_vehicle_types`
 --
 DROP TABLE IF EXISTS `show_amount_of_available_vehicle_types`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `show_amount_of_available_vehicle_types`  AS SELECT `vehicles_(pojazdy)`.`vehicle_type` AS `vehicle_type`, count(`vehicles_(pojazdy)`.`vehicle_type`) AS `amount` FROM `vehicles_(pojazdy)` GROUP BY `vehicles_(pojazdy)`.`vehicle_type``vehicle_type`  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `show_amount_of_available_vehicle_types`  AS SELECT `vehicles_(pojazdy)`.`vehicle_type` AS `vehicle_type`, count(`vehicles_(pojazdy)`.`vehicle_type`) AS `amount` FROM `vehicles_(pojazdy)` GROUP BY `vehicles_(pojazdy)`.`vehicle_type`  ;
 
 -- --------------------------------------------------------
 
@@ -5474,7 +5442,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `show_amount_of_cars_by_availability`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `show_amount_of_cars_by_availability`  AS SELECT `vehicles_(pojazdy)`.`availability` AS `availability`, count(`vehicles_(pojazdy)`.`availability`) AS `amount` FROM `vehicles_(pojazdy)` GROUP BY `vehicles_(pojazdy)`.`availability``availability`  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `show_amount_of_cars_by_availability`  AS SELECT `vehicles_(pojazdy)`.`availability` AS `availability`, count(`vehicles_(pojazdy)`.`availability`) AS `amount` FROM `vehicles_(pojazdy)` GROUP BY `vehicles_(pojazdy)`.`availability`  ;
 
 --
 -- Indeksy dla zrzutów tabel
@@ -5640,6 +5608,20 @@ ALTER TABLE `reservations_(rezerwacje)`
 --
 ALTER TABLE `vehicles_(pojazdy)`
   ADD CONSTRAINT `vehicles_(pojazdy)_ibfk_1` FOREIGN KEY (`insurance_id`) REFERENCES `insurances_(ubezpieczenia)` (`id`);
+
+CREATE VIEW get_top_5_active_customers AS SELECT `customers_(klienci)`.*, COUNT(`reservations_(rezerwacje)`.`id`) as reservation_amount FROM `customers_(klienci)` INNER JOIN `reservations_(rezerwacje)` ON `customers_(klienci)`.`id` = `reservations_(rezerwacje)`.`customer_id` GROUP BY `customers_(klienci)`.`id` ORDER BY reservation_amount DESC LIMIT 5;
+
+DROP PROCEDURE IF EXISTS available_cars_in_price_range; 
+DELIMITER //
+CREATE PROCEDURE available_cars_in_price_range(IN min_value INT, IN max_value INT)
+BEGIN
+SELECT `id`, `rental_charge`, `brand`, `model`, `vehicle_type`, `vin`, `year_of_production`, `mileage`, `seats`, `department_id`, `insurance_id`
+FROM `vehicles_(pojazdy)` 
+WHERE `availability` = "AVAILABLE" AND `rental_charge` >= min_value AND `rental_charge` <= max_value
+ORDER BY `rental_charge`;
+END //
+DELIMITER ;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
