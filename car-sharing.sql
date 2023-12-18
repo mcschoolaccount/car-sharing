@@ -45,7 +45,12 @@ INNER JOIN `reservations_(rezerwacje)` ON `vehicles_(pojazdy)`.`id` = `reservati
 INNER JOIN `customers_(klienci)` ON `customers_(klienci)`.`id` = `reservations_(rezerwacje)`.`customer_id`
 WHERE `customers_(klienci)`.`first_name` = `first_name` AND `customers_(klienci)`.`last_name` =`last_name` AND  `customers_(klienci)`.`number` = `number`  GROUP BY `vehicles_(pojazdy)`.`id`$$
 
-DELIMITER ;
+DROP PROCEDURE IF EXISTS available_cars_in_price_range; 
+CREATE PROCEDURE available_cars_in_price_range(IN min_value INT, IN max_value INT)
+SELECT `id`, `rental_charge`, `brand`, `model`, `vehicle_type`, `vin`, `year_of_production`, `mileage`, `seats`, `department_id`, `insurance_id`
+FROM `vehicles_(pojazdy)` 
+WHERE `availability` = "AVAILABLE" AND `rental_charge` >= min_value AND `rental_charge` <= max_value
+ORDER BY `rental_charge`;
 
 -- --------------------------------------------------------
 
