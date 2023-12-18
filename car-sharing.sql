@@ -5624,6 +5624,22 @@ DELIMITER ;
 
 COMMIT;
 
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicles_reserved_in_date_range`(IN pickup_date date, IN return_date date)
+SELECT `reservations_(rezerwacje)`.`pickup_date`, `reservations_(rezerwacje)`.`return_date`, `vehicles_(pojazdy)`.`id` as vehicle_id, `vehicles_(pojazdy)`.`brand`, `vehicles_(pojazdy)`.`model` FROM `reservations_(rezerwacje)` INNER JOIN `vehicles_(pojazdy)` ON `reservations_(rezerwacje)`.`vehicle_id` = `vehicles_(pojazdy)`.`id` 
+WHERE `reservations_(rezerwacje)`.`pickup_date` >= pickup_date AND `reservations_(rezerwacje)`.`return_date` <= return_date//
+DELIMITER ;
+
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicle_policy_by_vin`(IN vin varchar(50))
+SELECT `insurances_(ubezpieczenia)`.* FROM `vehicles_(pojazdy)` INNER JOIN `insurances_(ubezpieczenia)` ON `vehicles_(pojazdy)`.`insurance_id` = `insurances_(ubezpieczenia)`.`id` WHERE `vehicles_(pojazdy)`.`vin` = vin//
+DELIMITER ;
+
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicle_by_vin`(IN vin varchar(50))
+SELECT id, vin, brand, model FROM `vehicles_(pojazdy)` WHERE `vehicles_(pojazdy)`.`vin` = vin//
+DELIMITER ;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
