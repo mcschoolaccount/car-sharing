@@ -5624,6 +5624,16 @@ DELIMITER ;
 
 COMMIT;
 
+DROP PROCEDURE  IF EXISTS cars_in_department;
+DELIMITER //
+CREATE PROCEDURE cars_in_department(in dep_id INT)
+BEGIN
+SELECT * 
+FROM `vehicles_(pojazdy)` 
+WHERE department_id = dep_id;
+END //
+DELIMITER ;
+
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicles_reserved_in_date_range`(IN pickup_date date, IN return_date date)
 SELECT `reservations_(rezerwacje)`.`pickup_date`, `reservations_(rezerwacje)`.`return_date`, `vehicles_(pojazdy)`.`id` as vehicle_id, `vehicles_(pojazdy)`.`brand`, `vehicles_(pojazdy)`.`model` FROM `reservations_(rezerwacje)` INNER JOIN `vehicles_(pojazdy)` ON `reservations_(rezerwacje)`.`vehicle_id` = `vehicles_(pojazdy)`.`id` 
