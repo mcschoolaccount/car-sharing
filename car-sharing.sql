@@ -24,26 +24,26 @@ SET time_zone = "+00:00";
 DELIMITER $$
 --
 -- Procedury
---
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_departments_by_postcode` (`postcode` VARCHAR(5))   SELECT * from `departments_(placowki)` where `departments_(placowki)`.`zip_code` = `postcode`$$
+-- 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `departamenty_po_kodzie_pocztowym` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_income_in_specific_month_and_year` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(payment_amount) AS income
-    FROM `payments_(platnosci)`
+CREATE DEFINER=`root`@`localhost` PROCEDURE `zarobki_danego_miesiaca_w_danym_roku` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(payment_amount) AS przychod
+    FROM `platnosci`
     WHERE YEAR(`date`) = p_year AND MONTHNAME(`date`) = p_month$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_most_used_car_(najczesciej_uzywane_auto)` ()   SELECT * FROM `vehicles_(pojazdy)` WHERE id = (SELECT vehicle_id FROM `reservations_(rezerwacje)` INNER JOIN `rentals_(wypozyczenia)` ON `reservations_(rezerwacje)`.`id` = `rentals_(wypozyczenia)`.`reservation_id` GROUP BY vehicle_id ORDER BY count(vehicle_id) DESC LIMIT 1)$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicles_lent_by_employee` (IN `first_name` VARCHAR(255), IN `last_name` VARCHAR(255))   SELECT `vehicles_(pojazdy)`.`id`,`vehicles_(pojazdy)`.`brand`,`vehicles_(pojazdy)`.`model` FROM `vehicles_(pojazdy)` 
-INNER JOIN `reservations_(rezerwacje)` ON `vehicles_(pojazdy)`.`id` = `reservations_(rezerwacje)`.`vehicle_id`
-INNER JOIN `rentals_(wypozyczenia)` ON `rentals_(wypozyczenia)`.`id` =`reservations_(rezerwacje)`.`id`
-INNER JOIN `employees_(pracownicy)` ON `employees_(pracownicy)`.id = `rentals_(wypozyczenia)`.`employee_id`
-WHERE `employees_(pracownicy)`.`first_name` = `first_name` AND `employees_(pracownicy)`.`last_name` =`last_name`
-GROUP BY `vehicles_(pojazdy)`.`id`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_wynajete_przez_pracownka` (IN `first_name` VARCHAR(255), IN `last_name` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
+INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
+INNER JOIN `wypozyczenia` ON `wypozyczenia`.`id` =`rezerwacje`.`id`
+INNER JOIN `pracownicy` ON `pracownicy`.`id` = `wypozyczenia`.`pracownik_id`
+WHERE `pracownicy`.`imie` = `first_name` AND `pracownicy`.`nazwisko` =`last_name`
+GROUP BY `pojazdy`.`id`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicles_rent_by_client` (IN `first_name` VARCHAR(255), IN `last_name` VARCHAR(255), IN `number` INT(15))   SELECT `vehicles_(pojazdy)`.`id`,`vehicles_(pojazdy)`.`brand`,`vehicles_(pojazdy)`.`model` FROM `vehicles_(pojazdy)`
-INNER JOIN `reservations_(rezerwacje)` ON `vehicles_(pojazdy)`.`id` = `reservations_(rezerwacje)`.`vehicle_id`
-INNER JOIN `customers_(klienci)` ON `customers_(klienci)`.`id` = `reservations_(rezerwacje)`.`customer_id`
-WHERE `customers_(klienci)`.`first_name` = `first_name` AND `customers_(klienci)`.`last_name` =`last_name` AND  `customers_(klienci)`.`number` = `number`  GROUP BY `vehicles_(pojazdy)`.`id`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_wypozyczone_przez_klienta` (IN `first_name` VARCHAR(255), IN `last_name` VARCHAR(255), IN `number` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
+INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
+INNER JOIN `klienci` ON `klienci`.`id` = `rezerwacje`.`klient_id`
+WHERE `klienci`.`imie` = `first_name` AND `klienci`.`nazwisko` =`last_name` AND  `klienci`.`numer_telefonu` = `number`  GROUP BY `pojazdy`.`id`$$
 
 DELIMITER ;
 
@@ -5609,35 +5609,38 @@ ALTER TABLE `reservations_(rezerwacje)`
 ALTER TABLE `vehicles_(pojazdy)`
   ADD CONSTRAINT `vehicles_(pojazdy)_ibfk_1` FOREIGN KEY (`insurance_id`) REFERENCES `insurances_(ubezpieczenia)` (`id`);
 
-CREATE VIEW get_top_5_active_customers AS SELECT `customers_(klienci)`.*, COUNT(`reservations_(rezerwacje)`.`id`) as reservation_amount FROM `customers_(klienci)` INNER JOIN `reservations_(rezerwacje)` ON `customers_(klienci)`.`id` = `reservations_(rezerwacje)`.`customer_id` GROUP BY `customers_(klienci)`.`id` ORDER BY reservation_amount DESC LIMIT 5;
+DROP PROCEDURE IF EXISTS piec_najaktywniejszych_klientow; 
 
-DROP PROCEDURE IF EXISTS available_cars_in_price_range; 
+CREATE VIEW piec_najaktywniejszych_klientow AS SELECT `klienci`.*, COUNT(`rezerwacje`.`id`) as ilosc_rezerwacji FROM `klienci` INNER JOIN `rezerwacje` ON `klienci`.`id` = `rezerwacje`.`klient_id` GROUP BY `klienci`.`id` ORDER BY ilosc_rezerwacji DESC LIMIT 5;
+
+DROP PROCEDURE IF EXISTS dostepne_samochody_w_zakresie_cenowym; 
 DELIMITER //
-CREATE PROCEDURE available_cars_in_price_range(IN min_value INT, IN max_value INT)
+CREATE PROCEDURE dostepne_samochody_w_zakresie_cenowym(IN min_value INT, IN max_value INT)
 BEGIN
-SELECT `id`, `rental_charge`, `brand`, `model`, `vehicle_type`, `vin`, `year_of_production`, `mileage`, `seats`, `department_id`, `insurance_id`
-FROM `vehicles_(pojazdy)` 
-WHERE `availability` = "AVAILABLE" AND `rental_charge` >= min_value AND `rental_charge` <= max_value
-ORDER BY `rental_charge`;
+SELECT `id`, `koszt`, `brand`, `model`, `typ`, `vin`, `rok_produkcji`, `przebieg`, `siedzenia`, `departament_id`, `ubezpieczene_id`
+FROM `pojazdy` 
+WHERE `dostepnosc` = "AVAILABLE" AND `rental_charge` >= min_value AND `rental_charge` <= max_value
+ORDER BY `koszt`;
 END //
 DELIMITER ;
 
 COMMIT;
 
-DROP PROCEDURE  IF EXISTS cars_in_department;
+DROP PROCEDURE  IF EXISTS samochody_w_departamencie;
 DELIMITER //
-CREATE PROCEDURE cars_in_department(in dep_id INT)
+CREATE PROCEDURE samochody_w_departamencie(in dep_id INT)
 BEGIN
 SELECT * 
-FROM `vehicles_(pojazdy)` 
-WHERE department_id = dep_id;
+FROM `pojazdy` 
+WHERE departament_id = dep_id;
 END //
 DELIMITER ;
 
+-- trzeba skonczyc lmfao
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicles_reserved_in_date_range`(IN pickup_date date, IN return_date date)
-SELECT `reservations_(rezerwacje)`.`pickup_date`, `reservations_(rezerwacje)`.`return_date`, `vehicles_(pojazdy)`.`id` as vehicle_id, `vehicles_(pojazdy)`.`brand`, `vehicles_(pojazdy)`.`model` FROM `reservations_(rezerwacje)` INNER JOIN `vehicles_(pojazdy)` ON `reservations_(rezerwacje)`.`vehicle_id` = `vehicles_(pojazdy)`.`id` 
-WHERE `reservations_(rezerwacje)`.`pickup_date` >= pickup_date AND `reservations_(rezerwacje)`.`return_date` <= return_date//
+CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_zarezerwowane_w_dniach`(IN pickup_date date, IN return_date date)
+SELECT `rezerwacje`.`pickup_date`, `rezerwacje`.`return_date`, `pojazdy`.`id` as vehicle_id, `pojazdy`.`brand`, `pojazdy`.`model` FROM `rezerwacje` INNER JOIN `pojazdy` ON `rezerwacje`.`vehicle_id` = `pojazdy`.`id` 
+WHERE `rezerwacje`.`pickup_date` >= pickup_date AND `rezerwacje`.`return_date` <= return_date//
 DELIMITER ;
 
 DELIMITER //
@@ -5647,7 +5650,7 @@ DELIMITER ;
 
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicle_by_vin`(IN vin varchar(50))
-SELECT id, vin, brand, model FROM `vehicles_(pojazdy)` WHERE `vehicles_(pojazdy)`.`vin` = vin//
+SELECT id, vin, marka, model FROM `pojazdy` WHERE `pojazdy`.`vin` = vin//
 DELIMITER ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
