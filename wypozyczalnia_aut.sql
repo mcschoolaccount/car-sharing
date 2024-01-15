@@ -25,22 +25,22 @@ DELIMITER $$
 --
 -- Procedury
 --
-CREATE DEFINER=`root`@`localhost`  `get_departments_by_postcode` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
+CREATE PROCEDURE `departamenty_po_kodzie_pocztowym` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
 
-CREATE DEFINER=`root`@`localhost`  `get_income_in_specific_month_and_year` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS income
+CREATE PROCEDURE  `przychod_w_danym_roku_i_miesiacu` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS przychod
     FROM `platnosci`
-    WHERE YEAR(`data`) = p_year AND MONTHimie(`data`) = p_month$$
+    WHERE YEAR(`data`) = p_year AND MONTH imie(`data`) = p_month$$
 
-CREATE DEFINER=`root`@`localhost`  `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
+CREATE PROCEDURE `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
 
-CREATE DEFINER=`root`@`localhost`  `get_vehicles_lent_by_employee` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
+CREATE PROCEDURE  `samochody_wynajete_przez_pracownika` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `wypozyczenia` ON `wypozyczenia`.`id` =`rezerwacje`.`id`
 INNER JOIN `pracownicy` ON `pracownicy`.id = `wypozyczenia`.`pracownik_id`
 WHERE `pracownicy`.`imie` = `imie` AND `pracownicy`.`nazwisko` =`nazwisko`
 GROUP BY `pojazdy`.`id`$$
 
-CREATE DEFINER=`root`@`localhost`  `get_vehicles_rent_by_client` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255), IN `numer_telefonu` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
+CREATE PROCEDURE  `samochody_wypozyczone_przez_klienta` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255), IN `numer_telefonu` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `klienci` ON `klienci`.`id` = `rezerwacje`.`klient_id`
 WHERE `klienci`.`imie` = `imie` AND `klienci`.`nazwisko` =`nazwisko` AND  `klienci`.`numer_telefonu` = `numer_telefonu`  GROUP BY `pojazdy`.`id`$$
