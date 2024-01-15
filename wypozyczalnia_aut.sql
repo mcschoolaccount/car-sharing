@@ -25,22 +25,22 @@ DELIMITER $$
 --
 -- Procedury
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_departments_by_postcode` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
+CREATE DEFINER=`root`@`localhost`  `get_departments_by_postcode` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_income_in_specific_month_and_year` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS income
+CREATE DEFINER=`root`@`localhost`  `get_income_in_specific_month_and_year` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS income
     FROM `platnosci`
     WHERE YEAR(`data`) = p_year AND MONTHimie(`data`) = p_month$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
+CREATE DEFINER=`root`@`localhost`  `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicles_lent_by_employee` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
+CREATE DEFINER=`root`@`localhost`  `get_vehicles_lent_by_employee` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `wypozyczenia` ON `wypozyczenia`.`id` =`rezerwacje`.`id`
 INNER JOIN `pracownicy` ON `pracownicy`.id = `wypozyczenia`.`pracownik_id`
 WHERE `pracownicy`.`imie` = `imie` AND `pracownicy`.`nazwisko` =`nazwisko`
 GROUP BY `pojazdy`.`id`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicles_rent_by_client` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255), IN `numer_telefonu` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
+CREATE DEFINER=`root`@`localhost`  `get_vehicles_rent_by_client` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255), IN `numer_telefonu` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `klienci` ON `klienci`.`id` = `rezerwacje`.`klient_id`
 WHERE `klienci`.`imie` = `imie` AND `klienci`.`nazwisko` =`nazwisko` AND  `klienci`.`numer_telefonu` = `numer_telefonu`  GROUP BY `pojazdy`.`id`$$
@@ -5431,18 +5431,18 @@ INSERT INTO `pojazdy` (`id`, `typ`, `placowka_id`, `ubezpieczenie_id`, `vin`, `d
 --
 -- Struktura widoku `show_amount_of_available_vehicle_types`
 --
-DROP TABLE IF EXISTS `show_amount_of_available_vehicle_types`;
+DROP TABLE IF EXISTS ilosc_samochodow_po_typie`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `show_amount_of_available_vehicle_types`  AS SELECT `pojazdy`.`typ` AS `typ`, count(`pojazdy`.`typ`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`typ`  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ilosc_samochodow_po_typie`  AS SELECT `pojazdy`.`typ` AS `typ`, count(`pojazdy`.`typ`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`typ`  ;
 
 -- --------------------------------------------------------
 
 --
 -- Struktura widoku `show_amount_of_cars_by_availability`
 --
-DROP TABLE IF EXISTS `show_amount_of_cars_by_availability`;
+DROP TABLE IF EXISTS `ilosc_samochodow_po_dostepnosci`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `show_amount_of_cars_by_availability`  AS SELECT `pojazdy`.`dostepnosc` AS `dostepnosc`, count(`pojazdy`.`dostepnosc`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`dostepnosc`  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ilosc_samochodow_po_dostepnosci`  AS SELECT `pojazdy`.`dostepnosc` AS `dostepnosc`, count(`pojazdy`.`dostepnosc`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`dostepnosc`  ;
 
 --
 -- Indeksy dla zrzutów tabel
@@ -5608,12 +5608,14 @@ ALTER TABLE `rezerwacje`
 --
 ALTER TABLE `pojazdy`
   ADD CONSTRAINT `pojazdy_ibfk_1` FOREIGN KEY (`ubezpieczenie_id`) REFERENCES `ubezpieczenia` (`id`);
+DROP IF EXISTS piec_najaktywniejszych_klientow;-
+    
 
-CREATE VIEW get_top_5_active_customers AS SELECT `klienci`.*, COUNT(`rezerwacje`.`id`) as reservation_amount FROM `klienci` INNER JOIN `rezerwacje` ON `klienci`.`id` = `rezerwacje`.`klient_id` GROUP BY `klienci`.`id` ORDER BY reservation_amount DESC LIMIT 5;
+CREATE VIEW piec_najaktywniejszych_klientow AS SELECT `klienci`.*, COUNT(`rezerwacje`.`id`) as reservation_amount FROM `klienci` INNER JOIN `rezerwacje` ON `klienci`.`id` = `rezerwacje`.`klient_id` GROUP BY `klienci`.`id` ORDER BY reservation_amount DESC LIMIT 5;
 
-DROP PROCEDURE IF EXISTS available_cars_in_price_range; 
+DROP  IF EXISTS dostepne_samochody_w_przedziale_cenowym; 
 DELIMITER //
-CREATE PROCEDURE available_cars_in_price_range(IN min_value INT, IN max_value INT)
+CREATE  dostepne_samochody_w_przedziale_cenowym(IN min_value INT, IN max_value INT)
 BEGIN
 SELECT `id`, `koszt`, `marka`, `model`, `typ`, `vin`, `rok_produkcji`, `przebieg`, `siedzenia`, `placowka_id`, `ubezpieczenie_id`
 FROM `pojazdy` 
@@ -5624,9 +5626,9 @@ DELIMITER ;
 
 COMMIT;
 
-DROP PROCEDURE  IF EXISTS cars_in_department;
+DROP   IF EXISTS samochody_w_departamencie;
 DELIMITER //
-CREATE PROCEDURE cars_in_department(in dep_id INT)
+CREATE  samochody_w_departamencie(in dep_id INT)
 BEGIN
 SELECT * 
 FROM `pojazdy` 
@@ -5635,18 +5637,18 @@ END //
 DELIMITER ;
 
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicles_reserved_in_date_range`(IN data_odbioru date, IN data_zwrotu date)
+CREATE DEFINER=`root`@`localhost`  `pojazdy_zarezerwowane_w_dniach`(IN data_odbioru date, IN data_zwrotu date)
 SELECT `rezerwacje`.`data_odbioru`, `rezerwacje`.`data_zwrotu`, `pojazdy`.`id` as pojazd_id, `pojazdy`.`marka`, `pojazdy`.`model` FROM `rezerwacje` INNER JOIN `pojazdy` ON `rezerwacje`.`pojazd_id` = `pojazdy`.`id` 
 WHERE `rezerwacje`.`data_odbioru` >= data_odbioru AND `rezerwacje`.`data_zwrotu` <= data_zwrotu//
 DELIMITER ;
 
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicle_polisa_by_vin`(IN vin varchar(50))
+CREATE DEFINER=`root`@`localhost`  `polisy_po_vin_pojazdu`(IN vin varchar(50))
 SELECT `ubezpieczenia`.* FROM `pojazdy` INNER JOIN `ubezpieczenia` ON `pojazdy`.`ubezpieczenie_id` = `ubezpieczenia`.`id` WHERE `pojazdy`.`vin` = vin//
 DELIMITER ;
 
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_vehicle_by_vin`(IN vin varchar(50))
+CREATE DEFINER=`root`@`localhost`  `pojazdy_po_vin`(IN vin varchar(50))
 SELECT id, vin, marka, model FROM `pojazdy` WHERE `pojazdy`.`vin` = vin//
 DELIMITER ;
 
