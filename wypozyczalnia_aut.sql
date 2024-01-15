@@ -5612,18 +5612,24 @@ END //
 DELIMITER ;
 
 DELIMITER //
+DROP   IF EXISTS pojazdy_zarezerwowane_w_dniach;
+
 CREATE DEFINER=`root`@`localhost`  `pojazdy_zarezerwowane_w_dniach`(IN data_odbioru date, IN data_zwrotu date)
 SELECT `rezerwacje`.`data_odbioru`, `rezerwacje`.`data_zwrotu`, `pojazdy`.`id` as pojazd_id, `pojazdy`.`marka`, `pojazdy`.`model` FROM `rezerwacje` INNER JOIN `pojazdy` ON `rezerwacje`.`pojazd_id` = `pojazdy`.`id` 
 WHERE `rezerwacje`.`data_odbioru` >= data_odbioru AND `rezerwacje`.`data_zwrotu` <= data_zwrotu//
 DELIMITER ;
 
 DELIMITER //
-CREATE DEFINER=`root`@`localhost`  `polisy_po_vin_pojazdu`(IN vin varchar(50))
+DROP   IF EXISTS polisy_po_vin_pojazdu;
+
+  CREATE DEFINER=`root`@`localhost`  `polisy_po_vin_pojazdu`(IN vin varchar(50))
 SELECT `ubezpieczenia`.* FROM `pojazdy` INNER JOIN `ubezpieczenia` ON `pojazdy`.`ubezpieczenie_id` = `ubezpieczenia`.`id` WHERE `pojazdy`.`vin` = vin//
 DELIMITER ;
 
 DELIMITER //
-CREATE DEFINER=`root`@`localhost`  `pojazdy_po_vin`(IN vin varchar(50))
+DROP   IF EXISTS pojazdy_po_vin;
+
+  CREATE DEFINER=`root`@`localhost`  `pojazdy_po_vin`(IN vin varchar(50))
 SELECT id, vin, marka, model FROM `pojazdy` WHERE `pojazdy`.`vin` = vin//
 DELIMITER ;
 
@@ -5632,14 +5638,26 @@ DELIMITER $$
 --
 -- Procedury
 --
+DROP   IF EXISTS departamenty_po_kodzie_pocztowym;
+
+  
 CREATE PROCEDURE `departamenty_po_kodzie_pocztowym` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
 
+  DROP   IF EXISTS przychod_w_danym_roku_i_miesiacu;
+
+  
 CREATE PROCEDURE  `przychod_w_danym_roku_i_miesiacu` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS przychod
     FROM `platnosci`
     WHERE YEAR(`data`) = p_year AND MONTH imie(`data`) = p_month$$
 
+DROP   IF EXISTS najczesciej_uzywane_auto;
+
+  
 CREATE PROCEDURE `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
 
+DROP   IF EXISTS samochody_wynajete_przez_pracownika;
+
+  
 CREATE PROCEDURE  `samochody_wynajete_przez_pracownika` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `wypozyczenia` ON `wypozyczenia`.`id` =`rezerwacje`.`id`
