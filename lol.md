@@ -1,94 +1,94 @@
-## Documentation for Database "b"
+## Dokumentacja dla Bazy Danych "b"
 
-### Overview
-- **Database Engine:** InnoDB
-- **PHPMyAdmin Version:** 5.2.0
-- **MariaDB Version:** 10.4.24
-- **PHP Version:** 8.1.6
+### Przegląd
+- **Silnik Bazy Danych:** InnoDB
+- **Wersja PHPMyAdmin:** 5.2.0
+- **Wersja MariaDB:** 10.4.24
+- **Wersja PHP:** 8.1.6
 
-### Procedures
+### Procedury
 1. **departamenty_po_kodzie_pocztowym**
-   - Parameters: `kod_pocztowy` (VARCHAR(5))
-   - Description: Retrieve departments based on postal code.
+   - Parametry: `kod_pocztowy` (VARCHAR(5))
+   - Opis: Pobierz departamenty na podstawie kodu pocztowego.
 
 2. **dostepne_samochody_w_przedziale_cenowym**
-   - Parameters: `min_value` (INT), `max_value` (INT)
-   - Description: Retrieve available cars within a price range.
+   - Parametry: `min_value` (INT), `max_value` (INT)
+   - Opis: Pobierz dostępne samochody w określonym przedziale cenowym.
 
 3. **najczesciej_uzywane_auto**
-   - Description: Retrieve the most frequently used car.
+   - Opis: Pobierz najczęściej używany samochód.
 
 4. **pojazdy_po_vin**
-   - Parameters: `vin` (VARCHAR(50))
-   - Description: Retrieve vehicles based on VIN.
+   - Parametry: `vin` (VARCHAR(50))
+   - Opis: Pobierz pojazdy na podstawie numeru identyfikacyjnego VIN.
 
 5. **pojazdy_zarezerwowane_w_dniach**
-   - Parameters: `data_odbioru` (DATE), `data_zwrotu` (DATE)
-   - Description: Retrieve reserved vehicles within specified dates.
+   - Parametry: `data_odbioru` (DATE), `data_zwrotu` (DATE)
+   - Opis: Pobierz zarezerwowane pojazdy w określonych datach.
 
 6. **polisy_po_vin_pojazdu**
-   - Parameters: `vin` (VARCHAR(50))
-   - Description: Retrieve insurance policies based on vehicle VIN.
+   - Parametry: `vin` (VARCHAR(50))
+   - Opis: Pobierz polisy ubezpieczeniowe na podstawie numeru identyfikacyjnego VIN pojazdu.
 
 7. **przychod_w_danym_roku_i_miesiacu**
-   - Parameters: `p_year` (INT), `p_month` (ENUM)
-   - Description: Retrieve income for a specific year and month.
+   - Parametry: `p_year` (INT), `p_month` (ENUM)
+   - Opis: Pobierz przychód dla określonego roku i miesiąca.
 
 8. **samochody_wynajete_przez_pracownika**
-   - Parameters: `imie` (VARCHAR(255)), `nazwisko` (VARCHAR(255))
-   - Description: Retrieve cars rented by an employee.
+   - Parametry: `imie` (VARCHAR(255)), `nazwisko` (VARCHAR(255))
+   - Opis: Pobierz samochody wynajęte przez pracownika.
 
 9. **samochody_wypozyczone_przez_klienta**
-   - Parameters: `imie` (VARCHAR(255)), `nazwisko` (VARCHAR(255)), `numer_telefonu` (INT(15))
-   - Description: Retrieve cars rented by a customer.
+   - Parametry: `imie` (VARCHAR(255)), `nazwisko` (VARCHAR(255)), `numer_telefonu` (INT(15))
+   - Opis: Pobierz samochody wypożyczone przez klienta.
 
 10. **samochody_w_departamencie**
-    - Parameters: `dep_id` (INT)
-    - Description: Retrieve cars in a specific department.
+    - Parametry: `dep_id` (INT)
+    - Opis: Pobierz samochody w określonym departamencie.
 
-### Tables
+### Tabele
 1. **klienci**
-   - Fields: id, imie, nazwisko, numer_telefonu, ulica, miasto, kod_pocztowy, prawo_jazdy
+   - Pola: id, imie, nazwisko, numer_telefonu, ulica, miasto, kod_pocztowy, prawo_jazdy
 
-2. **ilosc_samochodow_po_dostepnosci** (View)
-   - Fields: dostepnosc, amount
+2. **ilosc_samochodow_po_dostepnosci** (Widok)
+   - Pola: dostepnosc, amount
 
-3. **ilosc_samochodow_po_typie** (View)
-   - Fields: typ, amount
+3. **ilosc_samochodow_po_typie** (Widok)
+   - Pola: typ, amount
 
-4. **piec_najaktywniejszych_klientow** (View)
-   - Fields: id, imie, nazwisko, numer_telefonu, ulica, miasto, kod_pocztowy, prawo_jazdy, reservation_amount
+4. **piec_najaktywniejszych_klientow** (Widok)
+   - Pola: id, imie, nazwisko, numer_telefonu, ulica, miasto, kod_pocztowy, prawo_jazdy, reservation_amount
 
 5. **placowki**
-   - Fields: id, imie, ulica, miasto, wojewodztwo, kraj, kod_pocztowy
+   - Pola: id, imie, ulica, miasto, wojewodztwo, kraj, kod_pocztowy
 
 6. **platnosci**
-   - Fields: id, data, kwota, rezerwacja_id
+   - Pola: id, data, kwota, rezerwacja_id
 
 7. **pojazdy**
-   - Fields: id, typ, placowka_id, ubezpieczenie_id, vin, dostepnosc, marka, model, rok_produkcji, przebieg, koszt, siedzenia
+   - Pola: id, typ, placowka_id, ubezpieczenie_id, vin, dostepnosc, marka, model, rok_produkcji, przebieg, koszt, siedzenia
 
 8. **pracownicy**
-   - Fields: id, placowka_id, imie, nazwisko, data_urodzenia, ulica, miasto, kod_pocztowy, zarobki, pozycja
+   - Pola: id, placowka_id, imie, nazwisko, data_urodzenia, ulica, miasto, kod_pocztowy, zarobki, pozycja
 
 9. **rezerwacje**
-   - Fields: id, klient_id, pojazd_id, lokacja_odbioru, lokacja_zwrotu, data_odbioru, data_zwrotu
+   - Pola: id, klient_id, pojazd_id, lokacja_odbioru, lokacja_zwrotu, data_odbioru, data_zwrotu
 
 10. **ubezpieczenia**
-    - Fields: id, imie, polisa, koszt
+    - Pola: id, imie, polisa, koszt
 
 11. **wypozyczenia**
-    - Fields: id, pracownik_id, placowka_id, rezerwacja_id
+    - Pola: id, pracownik_id, placowka_id, rezerwacja_id
 
-### Views
+### Widoki
 1. **ilosc_samochodow_po_dostepnosci**
-   - Description: Count of cars based on availability.
+   - Opis: Liczba samochodów w zależności od dostępności.
 
 2. **ilosc_samochodow_po_typie**
-   - Description: Count of cars based on type.
+   - Opis: Liczba samochodów w zależności od typu.
 
 3. **piec_najaktywniejszych_klientow**
-   - Description: Top five most active customers.
+   - Opis: Pięciu najaktywniejszych klientów.
 
-### Conclusion
-This documentation provides a comprehensive overview of the "b" database, including procedures, tables, and views, along with their respective structures and descriptions.
+### Podsumowanie
+Ta dokumentacja zawiera kompleksowy opis bazy danych "b", obejmujący procedury, tabele i widoki wraz z ich strukturami i opisami.
