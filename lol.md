@@ -1,8 +1,8 @@
-## **Wypożyczalnia samochodów**
+# **Wypożyczalnia samochodów**
 Dokumentacja opisuje strukturę i funkcje bazy danych obsługującej wypożyczanie samochodów.  
 Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochodów
 
-### Tabele
+## Tabele
 1. **klienci**
    - Pola: id `INT`, imie `VARCHAR(255)`, nazwisko `VARCHAR(255)`, numer_telefonu `VARCHAR(15)`, ulica `VARCHAR(255)`, miasto `VARCHAR(255)`, kod_pocztowy `VARCHAR(5)`, prawo_jazdy `VARCHAR(255)` 
 
@@ -27,7 +27,7 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
 8. **wypozyczenia**
     - Pola: id `INT`, pracownik_id `INT`, placowka_id `INT`, rezerwacja_id `INT`
 
-### Widoki
+## Widoki
 1. **ilosc_samochodow_po_dostepnosci**
    - Pola: dostepnosc `ENUM`, amount `BIGINT`
    - Opis: Liczba samochodów w zależności od dostępności.
@@ -40,7 +40,7 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
    - Pola: id `INT`, imie `VARCHAR(255)`, nazwisko `VARCHAR(255)`, numer_telefonu `VARCHAR(15)`, ulica `VARCHAR(255)`, miasto `VARCHAR(255)`, kod_pocztowy `VARCHAR(5)`, prawo_jazdy `VARCHAR(255)`, reservation_amount `BIGINT`
    - Opis: Pięciu najaktywniejszych klientów.
 
-### Procedury
+## Procedury
 1. **departamenty_po_kodzie_pocztowym**
    - Parametry: `kod_pocztowy VARCHAR(5)`
    - Opis: Pobierz departamenty na podstawie kodu pocztowego.
@@ -80,7 +80,7 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
     - Parametry: `dep_id INT`
     - Opis: Pobierz samochody w określonym departamencie.
 
-### Relacje
+## Relacje
 1. Tabela `klienci`
    - **Klucz główny:** `id`
 
@@ -119,5 +119,5 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
      - `placowka_id` odnosi się do `placowki.id`
      - `rezerwacja_id` odnosi się do `rezerwacje.id`
 
-### Podsumowanie
+## Podsumowanie
 Ta dokumentacja zawiera kompleksowy opis bazy danych "wypożyczalnia samochodów", obejmujący procedury, tabele i widoki wraz z ich strukturami i opisami.
