@@ -4,40 +4,40 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
 
 ### Tabele
 1. **klienci**
-   - Pola: id, imie, nazwisko, numer_telefonu, ulica, miasto, kod_pocztowy, prawo_jazdy  
+   - Pola: id `int`, imie `varchar(255)`, nazwisko `varchar(255)`, numer_telefonu `varchar(15)`, ulica `varchar(255)`, miasto `varchar(255)`, kod_pocztowy `varchar(5)`, prawo_jazdy `varchar(255)` 
 
 2. **placowki**
-   - Pola: id, imie, ulica, miasto, wojewodztwo, kraj, kod_pocztowy
+   - Pola: id `int`, imie `varchar(255)`, ulica `varchar(255)`, miasto `varchar(255)`, wojewodztwo `varchar(255)`, kraj `varchar(255)`, kod_pocztowy `varchar(5)`
 
 3. **platnosci**
-   - Pola: id, data, kwota, rezerwacja_id
+   - Pola: id `int`, data `datetime`, kwota `int`, rezerwacja_id `int`
 
 4. **pojazdy**
-   - Pola: id, typ, placowka_id, ubezpieczenie_id, vin, dostepnosc, marka, model, rok_produkcji, przebieg, koszt, siedzenia
+   - Pola: id `int`, typ `enum`, placowka_id `int`, ubezpieczenie_id `int`, vin `varchar(50)`, dostepnosc `enum`, marka `varchar(255)`, model `varchar(255)`, rok_produkcji `year`, przebieg `int`, koszt `decimal`, siedzenia `int`
 
 5. **pracownicy**
-   - Pola: id, placowka_id, imie, nazwisko, data_urodzenia, ulica, miasto, kod_pocztowy, zarobki, pozycja
+   - Pola: id `int`, placowka_id `int`, imie `varchar(255)`, nazwisko `varchar(255)`, data_urodzenia `date`, ulica `varchar(255)`, miasto `varchar(255)`, kod_pocztowy `varchar(5)`, zarobki `int`, pozycja `enum`
 
 6. **rezerwacje**
-   - Pola: id, klient_id, pojazd_id, lokacja_odbioru, lokacja_zwrotu, data_odbioru, data_zwrotu
+   - Pola: id `int`, klient_id `int`, pojazd_id `int`, lokacja_odbioru `int`, lokacja_zwrotu `int`, data_odbioru `date`, data_zwrotu `date` 
 
 7. **ubezpieczenia**
-    - Pola: id, imie, polisa, koszt
+    - Pola: id `int`, imie `varchar(255)`, polisa `varchar(255)`, koszt `decimal`
 
 8. **wypozyczenia**
-    - Pola: id, pracownik_id, placowka_id, rezerwacja_id
+    - Pola: id `int`, pracownik_id `int`, placowka_id `int`, rezerwacja_id `int`
 
 ### Widoki
 1. **ilosc_samochodow_po_dostepnosci**
-   - Pola: dostepnosc, amount
+   - Pola: dostepnosc `enum`, amount `bigint`
    - Opis: Liczba samochodów w zależności od dostępności.
 
 2. **ilosc_samochodow_po_typie**
-   - Pola: typ, amount
+   - Pola: typ `enum`, amount `bigint`
    - Opis: Liczba samochodów w zależności od typu.
 
 3. **piec_najaktywniejszych_klientow**
-   - Pola: id, imie, nazwisko, numer_telefonu, ulica, miasto, kod_pocztowy, prawo_jazdy, reservation_amount
+   - Pola: id `int`, imie `varchar(255)`, nazwisko `varchar(255)`, numer_telefonu `varchar(15)`, ulica `varchar(255)`, miasto `varchar(255)`, kod_pocztowy `varchar(5)`, prawo_jazdy `varchar(255)`, reservation_amount `bigint`
    - Opis: Pięciu najaktywniejszych klientów.
 
 ### Procedury
@@ -57,7 +57,7 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
    - Opis: Pobierz pojazdy na podstawie numeru identyfikacyjnego VIN.
 
 5. **pojazdy_zarezerwowane_w_dniach**
-   - Parametry: `data_odbioru (DATE), data_zwrotu (DATE)`
+   - Parametry: `data_odbioru DATE, data_zwrotu DATE`
    - Opis: Pobierz zarezerwowane pojazdy w określonych datach.
 
 6. **polisy_po_vin_pojazdu**
@@ -81,4 +81,4 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
     - Opis: Pobierz samochody w określonym departamencie.
 
 ### Podsumowanie
-Ta dokumentacja zawiera kompleksowy opis bazy danych "b", obejmujący procedury, tabele i widoki wraz z ich strukturami i opisami.
+Ta dokumentacja zawiera kompleksowy opis bazy danych "wypożyczalnia samochodów", obejmujący procedury, tabele i widoki wraz z ich strukturami i opisami.
