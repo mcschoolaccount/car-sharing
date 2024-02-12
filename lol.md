@@ -80,5 +80,44 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
     - Parametry: `dep_id INT`
     - Opis: Pobierz samochody w określonym departamencie.
 
+### Relacje
+1. Tabela `klienci`
+   - **Klucz główny:** `id`
+
+2. Tabela `placowki`
+   - **Klucz główny:** `id`
+
+3. Tabela `platnosci`
+   - **Klucz główny:** `id`
+   - **Klucz obcy:** `rezerwacja_id` odnosi się do `rezerwacje.id`
+
+4. Tabela `pojazdy`
+   - **Klucz główny:** `id`
+   - **Klucze obce:**
+     - `placowka_id` odnosi się do `placowki.id`
+     - `ubezpieczenie_id` odnosi się do `ubezpieczenia.id`
+ 
+5. Tabela `pracownicy`
+   - **Klucz główny:** `id`
+   - **Klucz obcy:** `placowka_id` odnosi się do `placowki.id`
+ 
+6. Tabela `rezerwacje`
+   - **Klucz główny:** `id`
+   - **Klucze obce:**
+     - `klient_id` odnosi się do `klienci.id`
+     - `pojazd_id` odnosi się do `pojazdy.id`
+     - `lokacja_odbioru` odnosi się do `placowki.id`
+     - `lokacja_zwrotu` odnosi się do `placowki.id`
+ 
+7. Tabela `ubezpieczenia`
+   - **Klucz główny:** `id`
+ 
+8. Tabela `wypozyczenia`
+   - **Klucz główny:** `id`
+   - **Klucze obce:**
+     - `pracownik_id` odnosi się do `pracownicy.id`
+     - `placowka_id` odnosi się do `placowki.id`
+     - `rezerwacja_id` odnosi się do `rezerwacje.id`
+
 ### Podsumowanie
 Ta dokumentacja zawiera kompleksowy opis bazy danych "wypożyczalnia samochodów", obejmujący procedury, tabele i widoki wraz z ich strukturami i opisami.
