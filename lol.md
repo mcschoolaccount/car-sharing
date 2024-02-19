@@ -119,5 +119,16 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
      - `placowka_id` odnosi się do `placowki.id`
      - `rezerwacja_id` odnosi się do `rezerwacje.id`
 
+## Enumy
+
+1. pojazdy.typ
+   - wartości ```'Micro', 'Sedan', 'Hatchback', 'Coupe', 'Cabriolet,Sport Car', 'SUV', 'Van', 'Minivan'```
+2. pojazdy.dostepnosc
+   - wartości ```'RESERVED', 'OCCUPIED', 'AVAILABLE', 'SERVICE'```
+3. pracownicy.pozycja
+   - wartości ```'CEO', 'Manager', 'Agent', 'Marketer'```
+4. przychod_w_danym_roku_i_miesiacu.p_month __*Widok__
+   - wartości ```'january, 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'```
+
 ## Podsumowanie
 Ta dokumentacja zawiera kompleksowy opis bazy danych "wypożyczalnia samochodów", obejmujący procedury, tabele i widoki wraz z ich strukturami i opisami.
