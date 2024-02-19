@@ -148,7 +148,7 @@ WHERE placowka_id = dep_id`;```
 ## Enumy
 
 1. pojazdy.typ
-   - wartości ```'Micro', 'Sedan', 'Hatchback', 'Coupe', 'Cabriolet,Sport Car', 'SUV', 'Van', 'Minivan'```
+   - wartości ```'Micro', 'Sedan', 'Hatchback', 'Coupe', 'Cabriolet', 'Sport Car', 'SUV', 'Van', 'Minivan'```
 2. pojazdy.dostepnosc
    - wartości ```'RESERVED', 'OCCUPIED', 'AVAILABLE', 'SERVICE'```
 3. pracownicy.pozycja
