@@ -75,7 +75,7 @@ CREATE TABLE `ilosc_samochodow_po_dostepnosci` (
 -- (Zobacz poniżej rzeczywisty widok)
 --
 CREATE TABLE `ilosc_samochodow_po_typie` (
-`typ` enum('Micro','Sedan','Hatchback','Coupe','Cabriolet,Sport Car','SUV','Van','Minivan')
+`typ` enum('Micro','Sedan','Hatchback','Coupe','Cabriolet','Sport Car','SUV','Van','Minivan')
 ,`amount` bigint(21)
 );
 
