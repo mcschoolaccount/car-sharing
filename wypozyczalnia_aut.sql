@@ -35,9 +35,9 @@ WHERE `rezerwacje`.`data_odbioru` >= data_odbioru AND `rezerwacje`.`data_zwrotu`
 
 CREATE PROCEDURE `polisy_po_vin_pojazdu` (IN `vin` VARCHAR(50))   SELECT `ubezpieczenia`.* FROM `pojazdy` INNER JOIN `ubezpieczenia` ON `pojazdy`.`ubezpieczenie_id` = `ubezpieczenia`.`id` WHERE `pojazdy`.`vin` = vin$$
 
-CREATE PROCEDURE `przychod_w_danym_roku_i_miesiacu` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS przychod
+CREATE PROCEDURE `przychod_w_danym_roku_i_miesiacu` (IN `rok` INT, IN `miesiac` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS przychod
     FROM `platnosci`
-    WHERE YEAR(`data`) = p_year AND MONTH(`data`) = p_month$$
+    WHERE YEAR(`data`) = rok AND MONTH(`data`) = miesiac$$
 
 CREATE PROCEDURE `samochody_wynajete_przez_pracownika` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
