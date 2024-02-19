@@ -11,12 +11,6 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
 --
 -- Baza danych: `wypozyczalna-aut`
 --
@@ -25,39 +19,39 @@ DELIMITER $$
 --
 -- Procedury
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `departamenty_po_kodzie_pocztowym` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
+CREATE PROCEDURE `departamenty_po_kodzie_pocztowym` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `dostepne_samochody_w_przedziale_cenowym` (IN `min_value` INT, IN `max_value` INT)   SELECT `id`, `koszt`, `marka`, `model`, `typ`, `vin`, `rok_produkcji`, `przebieg`, `siedzenia`, `placowka_id`, `ubezpieczenie_id`
+CREATE PROCEDURE `dostepne_samochody_w_przedziale_cenowym` (IN `min_wartosc` INT, IN `max_wartosc` INT)   SELECT `id`, `koszt`, `marka`, `model`, `typ`, `vin`, `rok_produkcji`, `przebieg`, `siedzenia`, `placowka_id`, `ubezpieczenie_id`
 FROM `pojazdy` 
-WHERE `dostepnosc` = "AVAILABLE" AND `koszt` >= min_value AND `koszt` <= max_value
+WHERE `dostepnosc` = "AVAILABLE" AND `koszt` >= min_wartosc AND `koszt` <= max_wartosc
 ORDER BY `koszt`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
+CREATE PROCEDURE `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `pojazdy_po_vin` (IN `vin` VARCHAR(50))   SELECT id, vin, marka, model FROM `pojazdy` WHERE `pojazdy`.`vin` = vin$$
+CREATE PROCEDURE `pojazdy_po_vin` (IN `vin` VARCHAR(50))   SELECT id, vin, marka, model FROM `pojazdy` WHERE `pojazdy`.`vin` = vin$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `pojazdy_zarezerwowane_w_dniach` (IN `data_odbioru` DATE, IN `data_zwrotu` DATE)   SELECT `rezerwacje`.`data_odbioru`, `rezerwacje`.`data_zwrotu`, `pojazdy`.`id` as pojazd_id, `pojazdy`.`marka`, `pojazdy`.`model` FROM `rezerwacje` INNER JOIN `pojazdy` ON `rezerwacje`.`pojazd_id` = `pojazdy`.`id` 
+CREATE PROCEDURE `pojazdy_zarezerwowane_w_dniach` (IN `data_odbioru` DATE, IN `data_zwrotu` DATE)   SELECT `rezerwacje`.`data_odbioru`, `rezerwacje`.`data_zwrotu`, `pojazdy`.`id` as pojazd_id, `pojazdy`.`marka`, `pojazdy`.`model` FROM `rezerwacje` INNER JOIN `pojazdy` ON `rezerwacje`.`pojazd_id` = `pojazdy`.`id` 
 WHERE `rezerwacje`.`data_odbioru` >= data_odbioru AND `rezerwacje`.`data_zwrotu` <= data_zwrotu$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `polisy_po_vin_pojazdu` (IN `vin` VARCHAR(50))   SELECT `ubezpieczenia`.* FROM `pojazdy` INNER JOIN `ubezpieczenia` ON `pojazdy`.`ubezpieczenie_id` = `ubezpieczenia`.`id` WHERE `pojazdy`.`vin` = vin$$
+CREATE PROCEDURE `polisy_po_vin_pojazdu` (IN `vin` VARCHAR(50))   SELECT `ubezpieczenia`.* FROM `pojazdy` INNER JOIN `ubezpieczenia` ON `pojazdy`.`ubezpieczenie_id` = `ubezpieczenia`.`id` WHERE `pojazdy`.`vin` = vin$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `przychod_w_danym_roku_i_miesiacu` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS przychod
+CREATE PROCEDURE `przychod_w_danym_roku_i_miesiacu` (IN `p_year` INT, IN `p_month` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS przychod
     FROM `platnosci`
     WHERE YEAR(`data`) = p_year AND MONTH(`data`) = p_month$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_wynajete_przez_pracownika` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
+CREATE PROCEDURE `samochody_wynajete_przez_pracownika` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `wypozyczenia` ON `wypozyczenia`.`id` =`rezerwacje`.`id`
 INNER JOIN `pracownicy` ON `pracownicy`.id = `wypozyczenia`.`pracownik_id`
 WHERE `pracownicy`.`imie` = `imie` AND `pracownicy`.`nazwisko` =`nazwisko`
 GROUP BY `pojazdy`.`id`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_wypozyczone_przez_klienta` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255), IN `numer_telefonu` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
+CREATE PROCEDURE `samochody_wypozyczone_przez_klienta` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255), IN `numer_telefonu` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `klienci` ON `klienci`.`id` = `rezerwacje`.`klient_id`
 WHERE `klienci`.`imie` = `imie` AND `klienci`.`nazwisko` =`nazwisko` AND  `klienci`.`numer_telefonu` = `numer_telefonu`  GROUP BY `pojazdy`.`id`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_w_departamencie` (IN `dep_id` INT)   SELECT * 
+CREATE PROCEDURE `samochody_w_departamencie` (IN `dep_id` INT)   SELECT * 
 FROM `pojazdy` 
 WHERE placowka_id = dep_id$$
 
@@ -100,7 +94,7 @@ CREATE TABLE `klienci` (
   `miasto` varchar(255) NOT NULL,
   `kod_pocztowy` varchar(5) NOT NULL,
   `prawo_jazdy` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 --
 -- Zrzut danych tabeli `klienci`
@@ -240,7 +234,7 @@ CREATE TABLE `placowki` (
   `wojewodztwo` varchar(255) NOT NULL,
   `kraj` varchar(255) NOT NULL DEFAULT 'Poland',
   `kod_pocztowy` varchar(5) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 --
 -- Zrzut danych tabeli `placowki`
@@ -265,7 +259,7 @@ CREATE TABLE `platnosci` (
   `data` datetime NOT NULL DEFAULT current_timestamp(),
   `kwota` int(11) NOT NULL,
   `rezerwacja_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 --
 -- Zrzut danych tabeli `platnosci`
@@ -3636,7 +3630,7 @@ CREATE TABLE `pojazdy` (
   `przebieg` int(11) NOT NULL,
   `koszt` decimal(10,0) NOT NULL,
   `siedzenia` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 --
 -- Zrzut danych tabeli `pojazdy`
@@ -3963,7 +3957,7 @@ CREATE TABLE `pracownicy` (
   `kod_pocztowy` varchar(5) NOT NULL,
   `zarobki` int(11) NOT NULL,
   `pozycja` enum('CEO','Manager','Agent','Marketer') NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 --
 -- Zrzut danych tabeli `pracownicy`
@@ -4013,7 +4007,7 @@ CREATE TABLE `rezerwacje` (
   `lokacja_zwrotu` int(11) NOT NULL,
   `data_odbioru` date NOT NULL,
   `data_zwrotu` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 --
 -- Zrzut danych tabeli `rezerwacje`
@@ -4698,7 +4692,7 @@ CREATE TABLE `ubezpieczenia` (
   `imie` varchar(255) NOT NULL,
   `polisa` varchar(255) NOT NULL,
   `koszt` decimal(10,0) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 --
 -- Zrzut danych tabeli `ubezpieczenia`
@@ -4786,7 +4780,7 @@ CREATE TABLE `wypozyczenia` (
   `pracownik_id` int(11) NOT NULL,
   `placowka_id` int(11) NOT NULL,
   `rezerwacja_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 --
 -- Zrzut danych tabeli `wypozyczenia`
@@ -5467,7 +5461,7 @@ INSERT INTO `wypozyczenia` (`id`, `pracownik_id`, `placowka_id`, `rezerwacja_id`
 --
 DROP TABLE IF EXISTS `ilosc_samochodow_po_dostepnosci`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ilosc_samochodow_po_dostepnosci`  AS SELECT `pojazdy`.`dostepnosc` AS `dostepnosc`, count(`pojazdy`.`dostepnosc`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`dostepnosc`;
+CREATE VIEW `ilosc_samochodow_po_dostepnosci`  AS SELECT `pojazdy`.`dostepnosc` AS `dostepnosc`, count(`pojazdy`.`dostepnosc`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`dostepnosc`;
 
 -- --------------------------------------------------------
 
@@ -5476,7 +5470,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `ilosc_samochodow_po_typie`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `ilosc_samochodow_po_typie`  AS SELECT `pojazdy`.`typ` AS `typ`, count(`pojazdy`.`typ`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`typ`;
+CREATE VIEW `ilosc_samochodow_po_typie`  AS SELECT `pojazdy`.`typ` AS `typ`, count(`pojazdy`.`typ`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`typ`;
 
 -- --------------------------------------------------------
 
@@ -5485,7 +5479,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `piec_najaktywniejszych_klientow`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `piec_najaktywniejszych_klientow`  AS SELECT `klienci`.`id` AS `id`, `klienci`.`imie` AS `imie`, `klienci`.`nazwisko` AS `nazwisko`, `klienci`.`numer_telefonu` AS `numer_telefonu`, `klienci`.`ulica` AS `ulica`, `klienci`.`miasto` AS `miasto`, `klienci`.`kod_pocztowy` AS `kod_pocztowy`, `klienci`.`prawo_jazdy` AS `prawo_jazdy`, count(`rezerwacje`.`id`) AS `reservation_amount` FROM (`klienci` join `rezerwacje` on(`klienci`.`id` = `rezerwacje`.`klient_id`)) GROUP BY `klienci`.`id` ORDER BY count(`rezerwacje`.`id`) DESC LIMIT 0, 5555;
+CREATE VIEW `piec_najaktywniejszych_klientow`  AS SELECT `klienci`.`id` AS `id`, `klienci`.`imie` AS `imie`, `klienci`.`nazwisko` AS `nazwisko`, `klienci`.`numer_telefonu` AS `numer_telefonu`, `klienci`.`ulica` AS `ulica`, `klienci`.`miasto` AS `miasto`, `klienci`.`kod_pocztowy` AS `kod_pocztowy`, `klienci`.`prawo_jazdy` AS `prawo_jazdy`, count(`rezerwacje`.`id`) AS `reservation_amount` FROM (`klienci` join `rezerwacje` on(`klienci`.`id` = `rezerwacje`.`klient_id`)) GROUP BY `klienci`.`id` ORDER BY count(`rezerwacje`.`id`) DESC LIMIT 0, 5555;
 
 --
 -- Indeksy dla zrzutów tabel
@@ -5586,7 +5580,3 @@ ALTER TABLE `wypozyczenia`
   ADD CONSTRAINT `wypozyczenia_ibfk_2` FOREIGN KEY (`rezerwacja_id`) REFERENCES `rezerwacje` (`id`),
   ADD CONSTRAINT `wypozyczenia_ibfk_3` FOREIGN KEY (`pracownik_id`) REFERENCES `pracownicy` (`id`);
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
