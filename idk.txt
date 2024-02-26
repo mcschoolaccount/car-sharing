@@ -1,0 +1,7 @@
+CREATE TRIGGER rezerwacja_auta ON rezerwacje AFTER INSERT AS 
+BEGIN
+    SELECT @pojazd_id = `pojazd_id` FROM INSERTED;
+    SELECT @data_odbioru = `data_odbioru` FROM INSERTED;
+    IF (@data_odbioru >= NOW())
+    	UPDATE `pojazdy` SET `dostepnosc`='' WHERE `id` = @pojazd_id;
+END;
