@@ -49,19 +49,19 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
 2. **dostepne_samochody_w_przedziale_cenowym**
    - Parametry: `min_wartosc INT, max_wartosc INT`
    - Opis: Pobierz dostępne samochody w określonym przedziale cenowym.
-   - Zapytanie: ```SELECT `pojazdy`.`*`
+   - Zapytanie: ```SELECT `pojazdy`.*
               FROM `pojazdy`  
 WHERE `dostepnosc` = "AVAILABLE" AND `koszt` >= min_wartosc AND `koszt` <= max_wartosc
 ORDER BY `koszt`;```
 
 3. **najczesciej_uzywane_auto**
    - Opis: Pobierz najczęściej używany samochód.
-   - Zapytanie: ```SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)```
+   - Zapytanie: ```SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1);```
 
 4. **pojazdy_po_vin**
    - Parametry: `vin VARCHAR(50)`
    - Opis: Pobierz pojazdy na podstawie numeru identyfikacyjnego VIN.
-   - Zapytanie: ```SELECT id, vin, marka, model FROM `pojazdy` WHERE `pojazdy`.`vin` = `vin`;```
+   - Zapytanie: ```SELECT `id`, `vin`, `marka`, `model` FROM `pojazdy` WHERE `pojazdy`.`vin` = `vin`;```
 
 5. **pojazdy_zarezerwowane_w_dniach**
    - Parametry: `data_odbioru DATE, data_zwrotu DATE`
