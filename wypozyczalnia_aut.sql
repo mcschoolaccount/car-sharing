@@ -4681,6 +4681,19 @@ INSERT INTO `rezerwacje` (`id`, `klient_id`, `pojazd_id`, `lokacja_odbioru`, `lo
 (665, 41, 210, 4, 2, '2023-02-09', '2024-04-22'),
 (666, 37, 187, 1, 6, '2022-10-15', '2024-02-01');
 
+--
+-- Wyzwalacze `rezerwacje`
+--
+DELIMITER $$
+CREATE TRIGGER `rezerwacja_auta` AFTER INSERT ON `rezerwacje` FOR EACH ROW BEGIN
+	SET @dostepnosc := (SELECT `dostepnosc` FROM `pojazdy` WHERE `id` = NEW.`pojazd_id`);
+    IF @dostepnosc = 'AVAILABLE' AND NEW.`data_odbioru` >= NOW() THEN
+    	UPDATE `pojazdy` SET `dostepnosc`='RESERVED' WHERE `id` = NEW.`pojazd_id`;
+    END IF;
+END
+$$
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
