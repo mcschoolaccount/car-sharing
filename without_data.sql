@@ -199,6 +199,19 @@ CREATE TABLE `rezerwacje` (
   `data_zwrotu` date NOT NULL
 );
 
+--
+-- Wyzwalacze `rezerwacje`
+--
+DELIMITER $$
+CREATE TRIGGER `rezerwacja_auta` AFTER INSERT ON `rezerwacje` FOR EACH ROW BEGIN
+	SET @dostepnosc := (SELECT `dostepnosc` FROM `pojazdy` WHERE `id` = NEW.`pojazd_id`);
+    IF @dostepnosc = 'AVAILABLE' AND NEW.`data_odbioru` >= NOW() THEN
+    	UPDATE `pojazdy` SET `dostepnosc`='RESERVED' WHERE `id` = NEW.`pojazd_id`;
+    END IF;
+END
+$$
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
