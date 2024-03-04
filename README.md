@@ -132,6 +132,10 @@ WHERE placowka_id = dep_id`;```
     - Przykładowy wynik:  
     ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/p10.png)
 
+## ERD
+
+   ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/erd.png)
+
 ## Relacje
 1. Tabela `klienci`
    - **Klucz główny:** `id`
