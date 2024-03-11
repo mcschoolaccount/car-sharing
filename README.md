@@ -48,7 +48,7 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
 
 ## Triggery
 1. **rezerwacja_auta**
-   - Opis: Przy wpisie rezerwacji do bazy, jeśli data rezerwacji jest od teraz w przyszłość, to zmień dostępność danego pojazdu na zarezerwowany
+   - Opis: Przy wpisie rezerwacji do bazy, jeśli auto jest dostępne i data rezerwacji jest od teraz w przyszłość, to zmień dostępność danego pojazdu na zarezerwowany
    - Przykładowy wynik:
    ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/t1.png)
 
