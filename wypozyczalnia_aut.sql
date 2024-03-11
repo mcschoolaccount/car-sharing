@@ -4785,6 +4785,21 @@ INSERT INTO `ubezpieczenia` (`id`, `imie`, `polisa`, `koszt`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Struktura tabeli dla tabeli `usuniete_pojazdy`
+--
+
+CREATE TABLE `usuniete_pojazdy` (
+  `id` int(11) NOT NULL,
+  `id_pojazdu` int(11) NOT NULL,
+  `id_ubezpieczenia` int(11) NOT NULL,
+  `vin` varchar(50) NOT NULL,
+  `marka` varchar(255) NOT NULL,
+  `model` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Struktura tabeli dla tabeli `wypozyczenia`
 --
 
@@ -5547,6 +5562,12 @@ ALTER TABLE `ubezpieczenia`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indeksy dla tabeli `usuniete_pojazdy`
+--
+ALTER TABLE `usuniete_pojazdy`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indeksy dla tabeli `wypozyczenia`
 --
 ALTER TABLE `wypozyczenia`
@@ -5554,6 +5575,16 @@ ALTER TABLE `wypozyczenia`
   ADD KEY `pracownik_id` (`pracownik_id`,`placowka_id`,`rezerwacja_id`),
   ADD KEY `placowka_id` (`placowka_id`),
   ADD KEY `rezerwacja_id` (`rezerwacja_id`);
+
+--
+-- AUTO_INCREMENT dla zrzuconych tabel
+--
+
+--
+-- AUTO_INCREMENT dla tabeli `usuniete_pojazdy`
+--
+ALTER TABLE `usuniete_pojazdy`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Ograniczenia dla zrzutów tabel
