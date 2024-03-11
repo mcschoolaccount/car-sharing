@@ -4795,7 +4795,7 @@ CREATE TABLE `usuniete_pojazdy` (
   `vin` varchar(50) NOT NULL,
   `marka` varchar(255) NOT NULL,
   `model` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 -- --------------------------------------------------------
 
