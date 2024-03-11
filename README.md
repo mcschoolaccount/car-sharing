@@ -46,6 +46,12 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
     - Przykładowy wynik:  
     ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/w3.png)
 
+## Triggery
+1. **rezerwacja_auta**
+   - Opis: Przy wpisie rezerwacji do bazy, jeśli data rezerwacji jest od teraz w przyszłość, to zmień dostępność danego pojazdu na zarezerwowany
+   - Przykładowy wynik:
+   ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/t1.png)
+
 ## Procedury
 1. **departamenty_po_kodzie_pocztowym**
    - Parametry: `kod_pocztowy VARCHAR(5)`
