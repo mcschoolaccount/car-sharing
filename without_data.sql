@@ -352,9 +352,57 @@ ALTER TABLE `wypozyczenia`
 --
 
 --
+-- AUTO_INCREMENT dla tabeli `klienci`
+--
+ALTER TABLE `klienci`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT dla tabeli `placowki`
+--
+ALTER TABLE `placowki`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT dla tabeli `platnosci`
+--
+ALTER TABLE `platnosci`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT dla tabeli `pojazdy`
+--
+ALTER TABLE `pojazdy`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT dla tabeli `pracownicy`
+--
+ALTER TABLE `pracownicy`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT dla tabeli `rezerwacje`
+--
+ALTER TABLE `rezerwacje`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT dla tabeli `ubezpieczenia`
+--
+ALTER TABLE `ubezpieczenia`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT dla tabeli `usuniete_pojazdy`
 --
 ALTER TABLE `usuniete_pojazdy`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  
+--
+-- AUTO_INCREMENT dla tabeli `wypozyczenia`
+--
+ALTER TABLE `wypozyczenia`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
