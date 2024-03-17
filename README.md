@@ -64,6 +64,11 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
    - Przykładowy wynik:
    ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/t1.png)
 
+2. **usuniecie_auta**
+   - Opis: Przy usunięciu samochodu z tabeli pojazdy, informacje o usuniętym samochodzie zostają dodane do tabeli usuniete_samochody
+   - Przykładowy wynik:
+   ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/t2.png)
+
 ## Procedury
 1. **departamenty_po_kodzie_pocztowym**
    - Parametry: `kod_pocztowy VARCHAR(5)`
