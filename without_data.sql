@@ -12,7 +12,7 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 --
--- Baza danych: `wypozyczalna-aut`
+-- Baza danych: `wypozyczalnia-aut`
 --
 
 DELIMITER $$
