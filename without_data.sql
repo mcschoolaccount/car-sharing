@@ -15,6 +15,10 @@ SET time_zone = "+00:00";
 -- Baza danych: `wypozyczalnia-aut`
 --
 
+-- !!!!!!!!!!!!!!!!!!!! < < < < < < < <
+-- !! NOT UP-TO-DATE !! < < < < < < < <
+-- !!!!!!!!!!!!!!!!!!!! < < < < < < < <
+
 DELIMITER $$
 --
 -- Procedury
