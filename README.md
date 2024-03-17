@@ -47,7 +47,7 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
     ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/w1.png)
 
 2. **ilosc_samochodow_po_typie**
-   - Pola: typ `ENUM`, amount `BIGINT`
+   - Pola: typ `ENUM`, amount `INT`
    - Opis: Liczba samochodów w zależności od typu.
     - Przykładowy wynik:  
     ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/w2.png)
@@ -62,12 +62,12 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
 1. **rezerwacja_auta**
    - Opis: Przy wpisie rezerwacji do bazy, jeśli auto jest dostępne i data rezerwacji jest od teraz w przyszłość, to zmień dostępność danego pojazdu na zarezerwowany
    - Przykładowy wynik:
-   ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/t1.png)
+    ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/t1.png)
 
 2. **usuniecie_auta**
-   - Opis: Przy usunięciu samochodu z tabeli pojazdy, informacje o usuniętym samochodzie zostają dodane do tabeli usuniete_samochody
-   - Przykładowy wynik:
-   ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/t2.png)
+   - Opis: Przy usunięciu samochodu z tabeli pojazdy, informacje o usuniętym samochodzie zostają dodane do tabeli usuniete_samochody w przypadku gdy istnieje rezerwacja i nie doszło jeszcze do realizacji zostaje ona          anulowana.
+   - Przykładowy wynik:<br>
+    ![bruh](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/t2.png) 
 
 ## Procedury
 1. **departamenty_po_kodzie_pocztowym**
