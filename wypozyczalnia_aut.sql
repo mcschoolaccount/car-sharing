@@ -19,39 +19,39 @@ DELIMITER $$
 --
 -- Procedury
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `departamenty_po_kodzie_pocztowym` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
+CREATE PROCEDURE `departamenty_po_kodzie_pocztowym` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `dostepne_samochody_w_przedziale_cenowym` (IN `min_wartosc` INT, IN `max_wartosc` INT)   SELECT `id`, `koszt`, `marka`, `model`, `typ`, `vin`, `rok_produkcji`, `przebieg`, `siedzenia`, `placowka_id`, `ubezpieczenie_id`
+CREATE PROCEDURE `dostepne_samochody_w_przedziale_cenowym` (IN `min_wartosc` INT, IN `max_wartosc` INT)   SELECT `id`, `koszt`, `marka`, `model`, `typ`, `vin`, `rok_produkcji`, `przebieg`, `siedzenia`, `placowka_id`, `ubezpieczenie_id`
 FROM `pojazdy` 
 WHERE `dostepnosc` = "AVAILABLE" AND `koszt` >= min_wartosc AND `koszt` <= max_wartosc
 ORDER BY `koszt`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
+CREATE PROCEDURE `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `pojazdy_po_vin` (IN `vin` VARCHAR(50))   SELECT id, vin, marka, model FROM `pojazdy` WHERE `pojazdy`.`vin` = vin$$
+CREATE PROCEDURE `pojazdy_po_vin` (IN `vin` VARCHAR(50))   SELECT id, vin, marka, model FROM `pojazdy` WHERE `pojazdy`.`vin` = vin$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `pojazdy_zarezerwowane_w_dniach` (IN `data_odbioru` DATE, IN `data_zwrotu` DATE)   SELECT `rezerwacje`.`data_odbioru`, `rezerwacje`.`data_zwrotu`, `pojazdy`.`id` as pojazd_id, `pojazdy`.`marka`, `pojazdy`.`model` FROM `rezerwacje` INNER JOIN `pojazdy` ON `rezerwacje`.`pojazd_id` = `pojazdy`.`id` 
+CREATE PROCEDURE `pojazdy_zarezerwowane_w_dniach` (IN `data_odbioru` DATE, IN `data_zwrotu` DATE)   SELECT `rezerwacje`.`data_odbioru`, `rezerwacje`.`data_zwrotu`, `pojazdy`.`id` as pojazd_id, `pojazdy`.`marka`, `pojazdy`.`model` FROM `rezerwacje` INNER JOIN `pojazdy` ON `rezerwacje`.`pojazd_id` = `pojazdy`.`id` 
 WHERE `rezerwacje`.`data_odbioru` >= data_odbioru AND `rezerwacje`.`data_zwrotu` <= data_zwrotu$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `polisy_po_vin_pojazdu` (IN `vin` VARCHAR(50))   SELECT `ubezpieczenia`.* FROM `pojazdy` INNER JOIN `ubezpieczenia` ON `pojazdy`.`ubezpieczenie_id` = `ubezpieczenia`.`id` WHERE `pojazdy`.`vin` = vin$$
+CREATE PROCEDURE `polisy_po_vin_pojazdu` (IN `vin` VARCHAR(50))   SELECT `ubezpieczenia`.* FROM `pojazdy` INNER JOIN `ubezpieczenia` ON `pojazdy`.`ubezpieczenie_id` = `ubezpieczenia`.`id` WHERE `pojazdy`.`vin` = vin$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `przychod_w_danym_roku_i_miesiacu` (IN `rok` INT, IN `miesiac` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS przychod
+CREATE PROCEDURE `przychod_w_danym_roku_i_miesiacu` (IN `rok` INT, IN `miesiac` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS przychod
     FROM `platnosci`
     WHERE YEAR(`data`) = rok AND MONTH(`data`) = miesiac$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_wynajete_przez_pracownika` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
+CREATE PROCEDURE `samochody_wynajete_przez_pracownika` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `wypozyczenia` ON `wypozyczenia`.`id` =`rezerwacje`.`id`
 INNER JOIN `pracownicy` ON `pracownicy`.id = `wypozyczenia`.`pracownik_id`
 WHERE `pracownicy`.`imie` = `imie` AND `pracownicy`.`nazwisko` =`nazwisko`
 GROUP BY `pojazdy`.`id`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_wypozyczone_przez_klienta` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255), IN `numer_telefonu` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
+CREATE PROCEDURE `samochody_wypozyczone_przez_klienta` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255), IN `numer_telefonu` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `klienci` ON `klienci`.`id` = `rezerwacje`.`klient_id`
 WHERE `klienci`.`imie` = `imie` AND `klienci`.`nazwisko` =`nazwisko` AND  `klienci`.`numer_telefonu` = `numer_telefonu`  GROUP BY `pojazdy`.`id`$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_w_departamencie` (IN `dep_id` INT)   SELECT * 
+CREATE PROCEDURE `samochody_w_departamencie` (IN `dep_id` INT)   SELECT * 
 FROM `pojazdy` 
 WHERE placowka_id = dep_id$$
 
@@ -5659,33 +5659,33 @@ ALTER TABLE `wypozyczenia`
 -- Constraints for table `platnosci`
 --
 ALTER TABLE `platnosci`
-  ADD CONSTRAINT `platnosci_ibfk_1` FOREIGN KEY (`rezerwacja_id`) REFERENCES `rezerwacje` (`id`);
+  ADD FOREIGN KEY (`rezerwacja_id`) REFERENCES `rezerwacje` (`id`);
 
 --
 -- Constraints for table `pojazdy`
 --
 ALTER TABLE `pojazdy`
-  ADD CONSTRAINT `pojazdy_ibfk_1` FOREIGN KEY (`ubezpieczenie_id`) REFERENCES `ubezpieczenia` (`id`),
-  ADD CONSTRAINT `pojazdy_ibfk_2` FOREIGN KEY (`placowka_id`) REFERENCES `placowki` (`id`);
+  ADD FOREIGN KEY (`ubezpieczenie_id`) REFERENCES `ubezpieczenia` (`id`),
+  ADD FOREIGN KEY (`placowka_id`) REFERENCES `placowki` (`id`);
 
 --
 -- Constraints for table `pracownicy`
 --
 ALTER TABLE `pracownicy`
-  ADD CONSTRAINT `pracownicy_ibfk_1` FOREIGN KEY (`placowka_id`) REFERENCES `placowki` (`id`);
+  ADD FOREIGN KEY (`placowka_id`) REFERENCES `placowki` (`id`);
 
 --
 -- Constraints for table `rezerwacje`
 --
 ALTER TABLE `rezerwacje`
-  ADD CONSTRAINT `rezerwacje_ibfk_1` FOREIGN KEY (`klient_id`) REFERENCES `klienci` (`id`),
-  ADD CONSTRAINT `rezerwacje_ibfk_2` FOREIGN KEY (`pojazd_id`) REFERENCES `pojazdy` (`id`) ON DELETE SET NULL;
+  ADD FOREIGN KEY (`klient_id`) REFERENCES `klienci` (`id`),
+  ADD FOREIGN KEY (`pojazd_id`) REFERENCES `pojazdy` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `wypozyczenia`
 --
 ALTER TABLE `wypozyczenia`
-  ADD CONSTRAINT `wypozyczenia_ibfk_1` FOREIGN KEY (`placowka_id`) REFERENCES `placowki` (`id`),
-  ADD CONSTRAINT `wypozyczenia_ibfk_2` FOREIGN KEY (`rezerwacja_id`) REFERENCES `rezerwacje` (`id`),
-  ADD CONSTRAINT `wypozyczenia_ibfk_3` FOREIGN KEY (`pracownik_id`) REFERENCES `pracownicy` (`id`);
+  ADD FOREIGN KEY (`placowka_id`) REFERENCES `placowki` (`id`),
+  ADD FOREIGN KEY (`rezerwacja_id`) REFERENCES `rezerwacje` (`id`),
+  ADD FOREIGN KEY (`pracownik_id`) REFERENCES `pracownicy` (`id`);
 COMMIT;
