@@ -1,57 +1,57 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 19 Lut 2024, 07:23
--- Wersja serwera: 10.4.24-MariaDB
--- Wersja PHP: 8.1.6
+-- Generation Time: Mar 17, 2024 at 08:14 PM
+-- Wersja serwera: 10.4.32-MariaDB
+-- Wersja PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
 --
--- Baza danych: `wypozyczalnia-aut`
+-- Database: `wypozyczalnia_aut`
 --
 
 DELIMITER $$
 --
 -- Procedury
 --
-CREATE PROCEDURE `departamenty_po_kodzie_pocztowym` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `departamenty_po_kodzie_pocztowym` (`kod_pocztowy` VARCHAR(5))   SELECT * from `placowki` where `placowki`.`kod_pocztowy` = `kod_pocztowy`$$
 
-CREATE PROCEDURE `dostepne_samochody_w_przedziale_cenowym` (IN `min_wartosc` INT, IN `max_wartosc` INT)   SELECT `id`, `koszt`, `marka`, `model`, `typ`, `vin`, `rok_produkcji`, `przebieg`, `siedzenia`, `placowka_id`, `ubezpieczenie_id`
+CREATE DEFINER=`root`@`localhost` PROCEDURE `dostepne_samochody_w_przedziale_cenowym` (IN `min_wartosc` INT, IN `max_wartosc` INT)   SELECT `id`, `koszt`, `marka`, `model`, `typ`, `vin`, `rok_produkcji`, `przebieg`, `siedzenia`, `placowka_id`, `ubezpieczenie_id`
 FROM `pojazdy` 
 WHERE `dostepnosc` = "AVAILABLE" AND `koszt` >= min_wartosc AND `koszt` <= max_wartosc
 ORDER BY `koszt`$$
 
-CREATE PROCEDURE `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `najczesciej_uzywane_auto` ()   SELECT * FROM `pojazdy` WHERE id = (SELECT pojazd_id FROM `rezerwacje` INNER JOIN `wypozyczenia` ON `rezerwacje`.`id` = `wypozyczenia`.`rezerwacja_id` GROUP BY pojazd_id ORDER BY count(pojazd_id) DESC LIMIT 1)$$
 
-CREATE PROCEDURE `pojazdy_po_vin` (IN `vin` VARCHAR(50))   SELECT id, vin, marka, model FROM `pojazdy` WHERE `pojazdy`.`vin` = vin$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `pojazdy_po_vin` (IN `vin` VARCHAR(50))   SELECT id, vin, marka, model FROM `pojazdy` WHERE `pojazdy`.`vin` = vin$$
 
-CREATE PROCEDURE `pojazdy_zarezerwowane_w_dniach` (IN `data_odbioru` DATE, IN `data_zwrotu` DATE)   SELECT `rezerwacje`.`data_odbioru`, `rezerwacje`.`data_zwrotu`, `pojazdy`.`id` as pojazd_id, `pojazdy`.`marka`, `pojazdy`.`model` FROM `rezerwacje` INNER JOIN `pojazdy` ON `rezerwacje`.`pojazd_id` = `pojazdy`.`id` 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `pojazdy_zarezerwowane_w_dniach` (IN `data_odbioru` DATE, IN `data_zwrotu` DATE)   SELECT `rezerwacje`.`data_odbioru`, `rezerwacje`.`data_zwrotu`, `pojazdy`.`id` as pojazd_id, `pojazdy`.`marka`, `pojazdy`.`model` FROM `rezerwacje` INNER JOIN `pojazdy` ON `rezerwacje`.`pojazd_id` = `pojazdy`.`id` 
 WHERE `rezerwacje`.`data_odbioru` >= data_odbioru AND `rezerwacje`.`data_zwrotu` <= data_zwrotu$$
 
-CREATE PROCEDURE `polisy_po_vin_pojazdu` (IN `vin` VARCHAR(50))   SELECT `ubezpieczenia`.* FROM `pojazdy` INNER JOIN `ubezpieczenia` ON `pojazdy`.`ubezpieczenie_id` = `ubezpieczenia`.`id` WHERE `pojazdy`.`vin` = vin$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `polisy_po_vin_pojazdu` (IN `vin` VARCHAR(50))   SELECT `ubezpieczenia`.* FROM `pojazdy` INNER JOIN `ubezpieczenia` ON `pojazdy`.`ubezpieczenie_id` = `ubezpieczenia`.`id` WHERE `pojazdy`.`vin` = vin$$
 
-CREATE PROCEDURE `przychod_w_danym_roku_i_miesiacu` (IN `rok` INT, IN `miesiac` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS przychod
+CREATE DEFINER=`root`@`localhost` PROCEDURE `przychod_w_danym_roku_i_miesiacu` (IN `rok` INT, IN `miesiac` ENUM('January','February','March','April','May','June','July','August','September','October','November','December'))   SELECT SUM(kwota) AS przychod
     FROM `platnosci`
     WHERE YEAR(`data`) = rok AND MONTH(`data`) = miesiac$$
 
-CREATE PROCEDURE `samochody_wynajete_przez_pracownika` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_wynajete_przez_pracownika` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy` 
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `wypozyczenia` ON `wypozyczenia`.`id` =`rezerwacje`.`id`
 INNER JOIN `pracownicy` ON `pracownicy`.id = `wypozyczenia`.`pracownik_id`
 WHERE `pracownicy`.`imie` = `imie` AND `pracownicy`.`nazwisko` =`nazwisko`
 GROUP BY `pojazdy`.`id`$$
 
-CREATE PROCEDURE `samochody_wypozyczone_przez_klienta` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255), IN `numer_telefonu` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
+CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_wypozyczone_przez_klienta` (IN `imie` VARCHAR(255), IN `nazwisko` VARCHAR(255), IN `numer_telefonu` INT(15))   SELECT `pojazdy`.`id`,`pojazdy`.`marka`,`pojazdy`.`model` FROM `pojazdy`
 INNER JOIN `rezerwacje` ON `pojazdy`.`id` = `rezerwacje`.`pojazd_id`
 INNER JOIN `klienci` ON `klienci`.`id` = `rezerwacje`.`klient_id`
 WHERE `klienci`.`imie` = `imie` AND `klienci`.`nazwisko` =`nazwisko` AND  `klienci`.`numer_telefonu` = `numer_telefonu`  GROUP BY `pojazdy`.`id`$$
 
-CREATE PROCEDURE `samochody_w_departamencie` (IN `dep_id` INT)   SELECT * 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `samochody_w_departamencie` (IN `dep_id` INT)   SELECT * 
 FROM `pojazdy` 
 WHERE placowka_id = dep_id$$
 
@@ -61,7 +61,7 @@ DELIMITER ;
 
 --
 -- Zastąpiona struktura widoku `ilosc_samochodow_po_dostepnosci`
--- (Zobacz poniżej rzeczywisty widok)
+-- (See below for the actual view)
 --
 CREATE TABLE `ilosc_samochodow_po_dostepnosci` (
 `dostepnosc` enum('RESERVED','OCCUPIED','AVAILABLE','SERVICE')
@@ -72,10 +72,10 @@ CREATE TABLE `ilosc_samochodow_po_dostepnosci` (
 
 --
 -- Zastąpiona struktura widoku `ilosc_samochodow_po_typie`
--- (Zobacz poniżej rzeczywisty widok)
+-- (See below for the actual view)
 --
 CREATE TABLE `ilosc_samochodow_po_typie` (
-`typ` enum('Micro','Sedan','Hatchback','Coupe','Cabriolet','Sport Car','SUV','Van','Minivan')
+`typ` enum('Micro','Sedan','Hatchback','Coupe','Cabriolet,Sport Car','SUV','Van','Minivan')
 ,`amount` bigint(21)
 );
 
@@ -97,7 +97,7 @@ CREATE TABLE `klienci` (
 );
 
 --
--- Zrzut danych tabeli `klienci`
+-- Dumping data for table `klienci`
 --
 
 INSERT INTO `klienci` (`id`, `imie`, `nazwisko`, `numer_telefonu`, `ulica`, `miasto`, `kod_pocztowy`, `prawo_jazdy`) VALUES
@@ -206,7 +206,7 @@ INSERT INTO `klienci` (`id`, `imie`, `nazwisko`, `numer_telefonu`, `ulica`, `mia
 
 --
 -- Zastąpiona struktura widoku `piec_najaktywniejszych_klientow`
--- (Zobacz poniżej rzeczywisty widok)
+-- (See below for the actual view)
 --
 CREATE TABLE `piec_najaktywniejszych_klientow` (
 `id` int(11)
@@ -237,7 +237,7 @@ CREATE TABLE `placowki` (
 );
 
 --
--- Zrzut danych tabeli `placowki`
+-- Dumping data for table `placowki`
 --
 
 INSERT INTO `placowki` (`id`, `imie`, `ulica`, `miasto`, `wojewodztwo`, `kraj`, `kod_pocztowy`) VALUES
@@ -262,7 +262,7 @@ CREATE TABLE `platnosci` (
 );
 
 --
--- Zrzut danych tabeli `platnosci`
+-- Dumping data for table `platnosci`
 --
 
 INSERT INTO `platnosci` (`id`, `data`, `kwota`, `rezerwacja_id`) VALUES
@@ -3633,312 +3633,322 @@ CREATE TABLE `pojazdy` (
 );
 
 --
--- Zrzut danych tabeli `pojazdy`
+-- Dumping data for table `pojazdy`
 --
 
 INSERT INTO `pojazdy` (`id`, `typ`, `placowka_id`, `ubezpieczenie_id`, `vin`, `dostepnosc`, `marka`, `model`, `rok_produkcji`, `przebieg`, `koszt`, `siedzenia`) VALUES
-(1, 'Coupe', 2, 3, 'E23DPMU87WSY97401', 'AVAILABLE', 'Honda', 'A8', 1968, 363590, '178453', 1),
-(2, 'Coupe', 5, 58, '13W06H8UUWCE96398', 'SERVICE', 'Nissan', 'Volt', 1952, 287685, '204478', 1),
-(3, 'Minivan', 2, 2, 'G35UHW117JMR30235', 'OCCUPIED', 'Land Rover', 'Grand Cherokee', 1981, 5713, '908709', 5),
-(4, 'Sedan', 1, 44, '9Z14UUYXX7FP10156', 'RESERVED', 'Mini', 'CTS', 1951, 342880, '718233', 7),
-(5, 'Coupe', 1, 7, 'Y9D765R2XXHW42950', 'OCCUPIED', 'Ferrari', 'Wrangler', 2011, 371899, '567689', 6),
-(6, 'Coupe', 4, 41, '3821J6DNY1LL95066', 'OCCUPIED', 'Mazda', 'Jetta', 1958, 291909, '587710', 2),
-(7, 'Coupe', 4, 47, 'D2LX6J8AA6UL66632', 'SERVICE', 'Smart', 'Mercielago', 1954, 326405, '530981', 3),
-(8, 'Hatchback', 6, 39, 'B6X3016VAXDY41677', 'AVAILABLE', 'Nissan', 'Fortwo', 2020, 2298, '142203', 6),
-(9, 'Hatchback', 2, 55, 'HAXVFNBZZ3W245772', 'SERVICE', 'Polestar', 'Model Y', 1993, 127337, '56652', 4),
-(10, 'Hatchback', 6, 18, 'PL1U44C505NF26226', 'SERVICE', 'Land Rover', 'Corvette', 1953, 355454, '742843', 2),
-(11, 'Coupe', 1, 65, '3KME6D0HD1HF47595', 'OCCUPIED', 'Honda', 'Expedition', 1988, 105626, '603623', 1),
-(12, 'Sedan', 3, 63, 'VCDHJDCK25VZ94817', 'AVAILABLE', 'Tesla', 'Fortwo', 1981, 9368, '343699', 5),
-(13, 'SUV', 1, 51, 'C8TREW56HXKN15762', 'OCCUPIED', 'Mini', 'Land Cruiser', 1992, 308675, '888162', 1),
-(14, 'Micro', 1, 66, 'NN8UDY8BSBXF95050', 'AVAILABLE', 'Fiat', 'CX-9', 1992, 52330, '432613', 3),
-(15, 'Sedan', 3, 38, 'AJHUDFV9K3AA12143', 'OCCUPIED', 'Smart', 'Civic', 1963, 6595, '31905', 4),
-(16, 'Micro', 3, 62, 'ULN6UZG9N0UR72266', 'SERVICE', 'Jeep', 'Expedition', 1963, 262914, '492506', 8),
-(17, 'Hatchback', 2, 55, 'JT43FBJPMDZN79359', 'OCCUPIED', 'Honda', 'Charger', 1976, 362660, '368985', 3),
-(18, 'Sedan', 6, 19, 'FJA4T1B278MM29426', 'SERVICE', 'Smart', 'XTS', 1967, 75949, '643847', 8),
-(19, 'Coupe', 1, 1, 'CMBST175V6BJ77699', 'RESERVED', 'Audi', '911', 1958, 241320, '928264', 7),
-(20, 'Hatchback', 1, 16, 'CUCPPPRVNMPH90538', 'SERVICE', 'Tesla', 'CTS', 2015, 80931, '967069', 2),
-(21, 'Coupe', 1, 5, '6DTF2RG0ESBK38125', 'AVAILABLE', 'Polestar', 'Countach', 1954, 31247, '94841', 7),
-(22, 'Sedan', 4, 47, '41UYE21W9VY474938', 'SERVICE', 'Honda', 'Spyder', 1996, 344630, '459057', 3),
-(23, 'Coupe', 4, 12, 'MBCX21BNSSCZ70449', 'OCCUPIED', 'Volkswagen', 'V90', 2022, 354721, '888629', 1),
-(24, 'Sedan', 3, 58, 'G3S3CCYJ2XA637073', 'SERVICE', 'Polestar', 'Expedition', 1950, 36891, '876682', 1),
-(25, 'Coupe', 6, 47, 'LY0PAP1FZLVD17656', 'OCCUPIED', 'Audi', 'Element', 1955, 301229, '179098', 1),
-(26, 'Coupe', 6, 59, 'FDJY6AA7H1J512825', 'RESERVED', 'Land Rover', 'Aventador', 1976, 36275, '92638', 3),
-(27, 'Hatchback', 3, 16, 'WUHDGAJHX3BE87429', 'AVAILABLE', 'Chevrolet', 'Impala', 1992, 281148, '612575', 1),
-(28, 'SUV', 3, 42, 'ST3LGUBYFLS774253', 'OCCUPIED', 'Nissan', 'Sentra', 2009, 8701, '388864', 6),
-(29, 'Sedan', 4, 23, '0GDPSFV49HCZ53308', 'SERVICE', 'Tesla', 'Element', 1972, 182712, '279506', 1),
-(30, 'Hatchback', 6, 56, 'XG295Z15SEXH17578', 'RESERVED', 'Bentley', 'El Camino', 1958, 373825, '627276', 6),
-(31, 'Coupe', 1, 4, 'B5SU8KJ6M8XA85364', 'SERVICE', 'Rolls Royce', 'Alpine', 1997, 331064, '522316', 2),
-(32, 'Hatchback', 2, 61, 'MFKAWCZVUWKM88682', 'RESERVED', 'Honda', 'Wrangler', 2014, 187990, '114480', 6),
-(33, 'Coupe', 5, 14, 'TJK3YWPRFEB198649', 'AVAILABLE', 'Rolls Royce', 'Aventador', 1983, 280040, '660528', 1),
-(34, 'Coupe', 1, 25, 'CDBAA4PJ8VUJ23895', 'RESERVED', 'Kia', 'Corvette', 1996, 91084, '892631', 3),
-(35, 'Coupe', 6, 12, '76BEMJCLVTFA76890', 'RESERVED', 'Jaguar', 'Model 3', 2009, 206498, '170491', 1),
-(36, 'Micro', 6, 54, 'CUX3C61PGLL980498', 'OCCUPIED', 'Chrysler', 'Model S', 1960, 230015, '511981', 2),
-(37, 'Hatchback', 1, 28, 'NY118AXB87N559288', 'OCCUPIED', 'Porsche', 'Spyder', 1972, 242258, '476850', 1),
-(38, 'Sedan', 4, 45, 'APVBZZM27YZK94933', 'SERVICE', 'Volvo', 'Spyder', 1955, 102185, '542964', 1),
-(39, 'Micro', 1, 4, 'V7ZPSUJ995WW67931', 'AVAILABLE', 'Ford', '1', 1982, 194781, '644681', 1),
-(40, 'Sedan', 1, 23, '7FP2WFWL84L380790', 'RESERVED', 'Volvo', 'Model T', 1950, 184003, '198782', 2),
-(41, 'Micro', 6, 31, 'CH8C5S6P89VS54865', 'AVAILABLE', 'Ford', 'Colorado', 2001, 303011, '659786', 1),
-(42, 'SUV', 1, 17, 'RGBWCA9SWJVH92248', 'OCCUPIED', 'Nissan', 'Model S', 1985, 176241, '618056', 4),
-(43, 'Sedan', 1, 59, 'MY0PDPD9MZPC47993', 'SERVICE', 'Jaguar', 'Model Y', 1970, 75825, '659242', 1),
-(44, 'Coupe', 1, 39, 'JGU476ARZAEU10975', 'RESERVED', 'Honda', 'Mustang', 2020, 109421, '283617', 6),
-(45, 'SUV', 4, 16, 'RD9XXZAY0FGN37152', 'SERVICE', 'Bugatti', 'Golf', 2017, 31814, '832598', 5),
-(46, 'Coupe', 6, 31, 'CL5LLWE8XPN669929', 'AVAILABLE', 'BMW', 'Escalade', 2005, 292157, '702577', 4),
-(47, 'Micro', 1, 37, 'DY80E6H1XHBH35349', 'OCCUPIED', 'Honda', 'Jetta', 2022, 20111, '708835', 1),
-(48, 'Coupe', 1, 22, 'WDYWN92Y9MCJ69961', 'AVAILABLE', 'Jeep', 'Beetle', 1998, 128732, '509634', 2),
-(49, 'Hatchback', 1, 67, '65MJPXK2S6UZ85955', 'RESERVED', 'Volvo', 'Prius', 1975, 23220, '994943', 8),
-(50, 'Hatchback', 2, 62, 'XYJP33UFYZL771346', 'AVAILABLE', 'Jaguar', 'Charger', 2005, 41538, '607965', 1),
-(51, 'Sedan', 5, 38, 'X1EC8AXC7LCT76633', 'RESERVED', 'Maserati', 'A4', 2003, 70233, '264178', 5),
-(52, 'Sedan', 5, 4, 'NAKMAABWURMC36564', 'RESERVED', 'Volkswagen', 'Charger', 1978, 159681, '10911', 5),
-(53, 'Hatchback', 3, 44, '8HLVVERM4CL725842', 'SERVICE', 'Ferrari', 'Volt', 2004, 2059, '973810', 7),
-(54, 'Hatchback', 6, 2, 'SABKHX0BU2HL33706', 'AVAILABLE', 'Lamborghini', 'Taurus', 1989, 22179, '632895', 8),
-(55, 'Micro', 6, 14, 'F5W45895X4TM15048', 'AVAILABLE', 'Honda', 'Golf', 1984, 117241, '262040', 4),
-(56, 'Coupe', 3, 63, 'SG3PN6BP6SGY78973', 'RESERVED', 'Dodge', 'Expedition', 2003, 194116, '391710', 7),
-(57, 'Coupe', 6, 65, '8T3HWZ99PKF334124', 'RESERVED', 'Audi', 'Camaro', 1965, 261126, '454552', 3),
-(58, 'Coupe', 1, 68, 'NSXWG176E0YS95487', 'RESERVED', 'Maserati', 'Countach', 2017, 80121, '897872', 6),
-(59, 'Coupe', 5, 7, 'V6HEWBB330RZ67213', 'RESERVED', 'Hyundai', 'Malibu', 2016, 288796, '683907', 6),
-(60, 'Sedan', 6, 38, 'RXD9SYB2STWR37606', 'AVAILABLE', 'Lamborghini', 'Explorer', 2007, 351069, '465066', 4),
-(61, 'Coupe', 1, 31, 'YD2PAU9XLNGG97896', 'SERVICE', 'Tesla', 'Jetta', 1963, 76896, '69953', 1),
-(62, 'Micro', 1, 41, 'WDPN3UYAM3VB50177', 'OCCUPIED', 'Bugatti', 'Jetta', 1990, 247981, '127774', 7),
-(63, 'Hatchback', 5, 44, 'NADBLJV27GAZ12259', 'OCCUPIED', 'Mini', 'Ranchero', 1967, 237552, '411023', 5),
-(64, 'Sedan', 4, 24, 'EL4LADWYHFPF62385', 'AVAILABLE', 'Toyota', 'CX-9', 1988, 353325, '256531', 4),
-(65, 'Van', 4, 58, 'YNMRD9ZJRFSJ22198', 'RESERVED', 'Tesla', 'El Camino', 2014, 39148, '475273', 4),
-(66, 'Coupe', 2, 10, 'KVC94TMJ7YNJ79034', 'SERVICE', 'Nissan', 'Malibu', 2009, 274141, '819453', 1),
-(67, 'Sedan', 6, 15, '7NL5MEJT44TC35831', 'RESERVED', 'Ferrari', 'Element', 1979, 94951, '842983', 3),
-(68, 'Hatchback', 4, 42, '10Z930WRX7KT97061', 'SERVICE', 'Smart', 'Jetta', 1994, 128008, '537040', 5),
-(69, 'Sedan', 1, 28, 'K4PX7RARC7W751698', 'AVAILABLE', 'Cadillac', 'Ranchero', 2008, 398126, '188074', 6),
-(70, 'Micro', 1, 13, '3TS6EMEFJ5X640418', 'OCCUPIED', 'Audi', 'LeBaron', 1961, 393567, '533505', 2),
-(71, 'Coupe', 3, 51, 'TD74SZMZVKZ678089', 'OCCUPIED', 'Bugatti', 'Ranchero', 1978, 275722, '879839', 6),
-(72, 'Hatchback', 5, 8, '6152N9YA3GHY63706', 'OCCUPIED', 'Land Rover', 'CX-9', 1984, 14089, '840738', 6),
-(73, 'Sedan', 5, 24, 'H0YZEHMK0EAC35447', 'OCCUPIED', 'Mercedes Benz', '1', 1964, 241697, '187143', 8),
-(74, 'Sedan', 1, 28, '65VGG892NNTE77813', 'SERVICE', 'Bentley', 'Malibu', 1994, 171382, '372268', 4),
-(75, 'Hatchback', 4, 69, 'DPKSCGZJNLPW17056', 'AVAILABLE', 'Jaguar', 'Escalade', 1978, 17920, '969390', 2),
-(76, 'Van', 2, 50, '1X0EXCSYFRS755923', 'OCCUPIED', 'Smart', 'Countach', 1957, 218449, '22648', 2),
-(77, 'Coupe', 2, 45, '4MYH3VARA5LJ62136', 'RESERVED', 'Bentley', 'Model S', 1977, 329582, '12383', 1),
-(78, 'Coupe', 1, 7, 'GR52YD3FPHFK36341', 'OCCUPIED', 'Jaguar', 'Corvette', 1992, 250524, '163295', 5),
-(79, 'Coupe', 4, 34, '48VS19C40GM631107', 'AVAILABLE', 'Chevrolet', 'Cruze', 2003, 261324, '711213', 1),
-(80, 'Coupe', 1, 12, 'GNLZWPC8T8LP79217', 'RESERVED', 'Audi', 'Wrangler', 2016, 74236, '831402', 5),
-(81, 'SUV', 5, 26, '7BXXXP06SUNR22706', 'AVAILABLE', 'Chevrolet', 'Charger', 1976, 261518, '660907', 1),
-(82, 'Micro', 1, 24, 'MSD6593076RW69702', 'RESERVED', 'Dodge', 'V90', 1954, 38529, '854485', 1),
-(83, 'Sedan', 4, 41, '5J2JBFC9M8ZK47811', 'RESERVED', 'BMW', 'Golf', 1969, 281611, '557960', 3),
-(84, 'Coupe', 2, 66, 'ECU5BKAR1VYE49092', 'SERVICE', 'Lamborghini', 'Volt', 1959, 52112, '607493', 6),
-(85, 'SUV', 2, 66, '8M06DS62APFL78148', 'RESERVED', 'Dodge', 'XTS', 2013, 381826, '981839', 5),
-(86, 'Sedan', 1, 61, '7X2AK3SFXBSC85448', 'RESERVED', 'Aston Martin', 'Altima', 2015, 331341, '977159', 8),
-(87, 'Micro', 5, 40, 'SHLYC71A52YN10973', 'RESERVED', 'Audi', 'Prius', 2015, 391030, '7903', 5),
-(88, 'Sedan', 1, 17, 'T0AP27W32YGC82253', 'RESERVED', 'Toyota', 'Camaro', 2006, 113931, '153713', 2),
-(89, 'SUV', 4, 34, '91KRWMSFMCNB67135', 'AVAILABLE', 'Mini', 'Roadster', 1960, 271783, '912135', 3),
-(90, 'Hatchback', 5, 51, 'CMTH5ZKGL2T349993', 'SERVICE', 'Tesla', 'Alpine', 1980, 173247, '615393', 4),
-(91, 'Sedan', 5, 12, '94DRDAD6WZNX36790', 'AVAILABLE', 'Chevrolet', 'Focus', 1999, 389327, '584574', 1),
-(92, 'Coupe', 1, 44, '94ML19N4CAJH59490', 'RESERVED', 'Hyundai', 'Expedition', 1958, 172172, '968108', 8),
-(93, 'Van', 3, 45, 'UPXJNACDAGCS52470', 'OCCUPIED', 'Jaguar', 'Cruze', 1988, 5140, '277165', 4),
-(94, 'Sedan', 2, 24, 'T89W30F6VEV385985', 'RESERVED', 'Ferrari', 'Countach', 1972, 358751, '447006', 6),
-(95, 'Coupe', 1, 55, 'CWLFC8MJDVRE32073', 'SERVICE', 'Toyota', 'Fiesta', 2017, 79213, '253705', 6),
-(96, 'Sedan', 2, 65, 'E69USX51SMFK31139', 'OCCUPIED', 'BMW', 'Model 3', 1999, 384616, '722441', 8),
-(97, 'Sedan', 6, 20, 'USA7R1ZP5MDC46241', 'SERVICE', 'Kia', 'Roadster', 1995, 140989, '864156', 1),
-(98, 'SUV', 2, 42, 'ZC6XTTT0LNY299601', 'OCCUPIED', 'Jeep', 'Countach', 1956, 382439, '834170', 1),
-(99, 'Sedan', 3, 14, 'C6NFXYJK5HL478761', 'SERVICE', 'Maserati', 'Durango', 1991, 233930, '363549', 1),
-(100, 'Coupe', 2, 10, 'PLWLBLZYHLU122618', 'SERVICE', 'Ferrari', 'CX-9', 1992, 89742, '685271', 1),
-(101, 'SUV', 6, 8, 'W514V8D40NWL36293', 'AVAILABLE', 'Kia', 'Beetle', 1962, 320409, '681480', 4),
-(102, 'Coupe', 2, 9, 'UNTJG0UJ89MA52293', 'SERVICE', 'Porsche', 'A8', 1960, 76909, '754892', 8),
-(103, 'Sedan', 2, 22, 'DV60UD94FDF661077', 'AVAILABLE', 'Aston Martin', 'V90', 1962, 109712, '699632', 3),
-(104, 'Coupe', 1, 13, '30N6G5TSLMH099649', 'AVAILABLE', 'Maserati', 'F-150', 1983, 143981, '164965', 1),
-(105, 'Hatchback', 4, 68, 'ELG65XDZ5RZR10232', 'OCCUPIED', 'Lamborghini', 'Colorado', 2003, 310006, '771636', 5),
-(106, 'Sedan', 1, 23, 'JDL635ZZYDW917319', 'SERVICE', 'Polestar', 'Volt', 1969, 355814, '750901', 5),
-(107, 'Hatchback', 3, 49, 'KVZ5J8M7J0LK15146', 'RESERVED', 'Mini', 'XC90', 1962, 320500, '930250', 5),
-(108, 'Micro', 3, 37, 'XR56KYDRA6VD97562', 'SERVICE', 'Maserati', 'Fortwo', 1954, 136802, '14882', 1),
-(109, 'Hatchback', 3, 38, 'D4CFZYBJSPT649447', 'AVAILABLE', 'Jeep', 'Taurus', 2008, 97006, '700978', 5),
-(110, 'Sedan', 3, 10, 'MVKHU6YY6XWZ45292', 'SERVICE', 'Bentley', 'Model T', 2008, 317137, '605006', 4),
-(111, 'Coupe', 2, 6, '6H2UR36HD7KZ19610', 'SERVICE', 'Ford', 'Jetta', 1990, 117173, '22265', 7),
-(112, 'Hatchback', 2, 67, 'HDFLXD3ZU8GJ56090', 'RESERVED', 'Tesla', 'LeBaron', 1978, 223823, '561108', 7),
-(113, 'Coupe', 3, 39, 'F2YF8KKLFWP260981', 'AVAILABLE', 'Maserati', 'Escalade', 1970, 322268, '441608', 7),
-(114, 'Hatchback', 1, 64, 'YA7BLN46HUJC70977', 'OCCUPIED', 'Nissan', '911', 1968, 177961, '637717', 6),
-(115, 'Sedan', 1, 63, '83J6FCG8M8KC81883', 'RESERVED', 'Chrysler', 'Model X', 1981, 45065, '355031', 6),
-(116, 'Micro', 4, 54, 'JAB8YB6PBWJM27520', 'RESERVED', 'Bentley', 'Mustang', 1977, 67727, '311795', 7),
-(117, 'Hatchback', 3, 11, 'R72ZHCPRSWJP89463', 'OCCUPIED', 'Rolls Royce', 'A8', 1990, 42709, '958483', 6),
-(118, 'Hatchback', 4, 31, 'HBYKWFDGHEXK33941', 'AVAILABLE', 'Nissan', 'Accord', 1999, 1666, '461094', 1),
-(119, 'SUV', 3, 53, 'E5GKHD9J0EJF56604', 'OCCUPIED', 'Maserati', 'Land Cruiser', 1998, 385473, '237731', 1),
-(120, 'Sedan', 1, 34, 'VFP28S1V2PBD63552', 'RESERVED', 'Dodge', 'Explorer', 1972, 29281, '33636', 7),
-(121, 'Van', 6, 10, '5EL1SKP7GNS843187', 'AVAILABLE', 'Lamborghini', 'ATS', 1989, 394582, '853116', 4),
-(122, 'Hatchback', 1, 16, 'JLT51XK61EER53432', 'SERVICE', 'Jeep', 'Silverado', 2005, 159453, '511526', 3),
-(123, 'Sedan', 2, 52, 'CUAEMXT8R9KA97234', 'RESERVED', 'Porsche', 'Impala', 1962, 261364, '679158', 2),
-(124, 'Sedan', 6, 3, 'K6BGJKM22WE834924', 'SERVICE', 'Mazda', 'Mustang', 1995, 138771, '864360', 4),
-(125, 'Sedan', 4, 64, 'PAHA1TCW2GSU96358', 'SERVICE', 'Jeep', 'Cruze', 1988, 153515, '246853', 1),
-(126, 'Sedan', 1, 34, 'G3SC5NF4G7RN30110', 'OCCUPIED', 'Fiat', 'Countach', 2008, 299293, '449095', 4),
-(127, 'Sedan', 4, 48, 'JPPY9X1S86P816527', 'SERVICE', 'Ferrari', '1', 1979, 124193, '747179', 3),
-(128, 'Micro', 1, 69, 'U8KG1PD7FGS249041', 'SERVICE', 'Mazda', 'Grand Cherokee', 1994, 364661, '411076', 3),
-(129, 'SUV', 4, 62, 'KH2A2BG7XXLJ13754', 'RESERVED', 'Nissan', 'Fortwo', 2008, 349116, '257946', 1),
-(130, 'SUV', 5, 35, 'C8EPVN3LC7M926232', 'RESERVED', 'Ford', 'XC90', 1963, 175167, '80581', 8),
-(131, 'SUV', 4, 55, '8ABAYYA5CTH679538', 'SERVICE', 'Nissan', 'Altima', 1988, 76805, '967128', 3),
-(132, 'Hatchback', 6, 31, '5ZAWJG8KV4GM29670', 'OCCUPIED', 'Mini', 'PT Cruiser', 1955, 130900, '995208', 3),
-(133, 'Hatchback', 4, 61, '1YAH4DUBY9RG21208', 'OCCUPIED', 'Bentley', 'Beetle', 2007, 267658, '432264', 3),
-(134, 'Coupe', 2, 3, 'W5DY2PCB26SK25691', 'SERVICE', 'Audi', 'Escalade', 2001, 325354, '181680', 3),
-(135, 'Coupe', 1, 39, 'Z8CBVNGWW1K222776', 'SERVICE', 'BMW', 'Beetle', 1960, 121069, '930519', 8),
-(136, 'Hatchback', 6, 49, 'UU8GRJ5KLTTY23797', 'RESERVED', 'Volvo', 'Golf', 1996, 244196, '262644', 5),
-(137, 'Hatchback', 3, 55, '7CPZ2PF37CS153249', 'RESERVED', 'Bentley', 'Element', 2001, 138476, '79086', 4),
-(138, 'Sedan', 6, 61, '5V5MNEHNEYPJ73732', 'AVAILABLE', 'Honda', 'Fortwo', 1993, 105112, '222612', 1),
-(139, 'Sedan', 1, 2, 'Z2YZLVERHUP961659', 'OCCUPIED', 'Volkswagen', 'Countach', 2015, 54934, '238343', 1),
-(140, 'Sedan', 4, 34, 'KS5LHRLYW6R788299', 'OCCUPIED', 'Honda', 'Element', 1997, 214555, '545958', 4),
-(141, 'Micro', 1, 23, '9NVKN9KCLYNC84217', 'SERVICE', 'Mercedes Benz', 'Durango', 1990, 156751, '646793', 2),
-(142, 'Micro', 2, 12, '6ZD33Z2FS8VJ53463', 'SERVICE', 'Mini', 'Land Cruiser', 2009, 102418, '200015', 8),
-(143, 'Micro', 2, 62, 'D8YHDGWPYNUY92742', 'AVAILABLE', 'Porsche', 'A4', 1977, 50051, '366178', 4),
-(144, 'Micro', 6, 66, 'N335FW99KHSD33046', 'AVAILABLE', 'Rolls Royce', 'Charger', 1982, 384797, '368947', 8),
-(145, 'Sedan', 1, 5, 'N021UU0913B884641', 'OCCUPIED', 'Cadillac', 'Escalade', 1956, 93101, '574485', 5),
-(146, 'Coupe', 4, 33, 'ZX2U03XFTGKP78321', 'AVAILABLE', 'Volvo', 'ATS', 1959, 114228, '611217', 1),
-(147, 'Coupe', 6, 11, 'G4EVF6715EMB64921', 'AVAILABLE', 'Maserati', 'Impala', 1976, 339414, '611292', 1),
-(148, 'Sedan', 3, 27, 'XZ4MLRH1EYT840020', 'RESERVED', 'Tesla', 'Civic', 1979, 82223, '358328', 4),
-(149, 'Hatchback', 1, 32, 'TCLF22CZHCGA30088', 'OCCUPIED', 'Land Rover', '911', 2020, 124259, '60259', 2),
-(150, 'Sedan', 1, 11, 'HWR00BXULWCT38480', 'AVAILABLE', 'Toyota', 'Mercielago', 1991, 298524, '857612', 3),
-(151, 'Sedan', 2, 26, 'S4YBBXPVKBPM31244', 'SERVICE', 'Nissan', 'F-150', 2021, 278214, '702559', 7),
-(152, 'Coupe', 4, 26, '848UT3BTLKV481819', 'OCCUPIED', 'Tesla', 'Roadster', 1959, 82140, '353503', 2),
-(153, 'Sedan', 3, 53, '5692J8AUKYZ792114', 'RESERVED', 'Volvo', 'A8', 2004, 42538, '365888', 1),
-(154, 'Coupe', 4, 50, 'YCBBPRUGSNJB52186', 'OCCUPIED', 'Nissan', '911', 1972, 191676, '569485', 5),
-(155, 'Hatchback', 5, 21, '1L359U2FT1AA37098', 'SERVICE', 'Audi', 'Charger', 1971, 141644, '324311', 7),
-(156, 'Hatchback', 3, 23, 'DKMZ8HG2U0BB52484', 'AVAILABLE', 'Toyota', '2', 1992, 219886, '693548', 6),
-(157, 'SUV', 1, 52, 'RD9HUFNZEAM532835', 'AVAILABLE', 'Jaguar', 'Model T', 2020, 230926, '191372', 3),
-(158, 'Coupe', 4, 53, '9DARL07NT2Z384921', 'RESERVED', 'Fiat', 'Volt', 1956, 73389, '477979', 1),
-(159, 'Sedan', 2, 40, 'CA7N42GR2SYG43274', 'SERVICE', 'Smart', 'Volt', 1990, 41127, '370254', 2),
-(160, 'Micro', 1, 40, 'Y3BYR7L1KGMB47546', 'SERVICE', 'Ford', 'Model X', 1987, 110927, '737994', 2),
-(161, 'Hatchback', 4, 11, '1VGLKACFCXA593690', 'SERVICE', 'Bugatti', 'Model 3', 2013, 135324, '581013', 8),
-(162, 'Sedan', 2, 2, '4BVH6NRANMVZ63196', 'RESERVED', 'Aston Martin', 'Civic', 2009, 297004, '865816', 5),
-(163, 'Hatchback', 5, 48, 'PFUG0VL303J061817', 'RESERVED', 'Fiat', 'Malibu', 1984, 123359, '128864', 1),
-(164, 'Hatchback', 1, 24, '0YTH2XGH57F924729', 'SERVICE', 'Chrysler', 'A4', 2014, 397449, '130319', 7),
-(165, 'Coupe', 1, 44, 'RNKD65F2YDMH54293', 'OCCUPIED', 'Rolls Royce', 'Camaro', 2020, 296458, '151883', 8),
-(166, 'Hatchback', 6, 10, 'BPFT26SSN9DN17264', 'RESERVED', 'Aston Martin', 'PT Cruiser', 1961, 1439, '801251', 2),
-(167, 'Coupe', 1, 57, 'PB8GY21SWGCJ62649', 'AVAILABLE', 'Smart', 'Model S', 2020, 109770, '918592', 5),
-(168, 'SUV', 4, 45, '34HBPDRL9SAH24735', 'RESERVED', 'Hyundai', '2', 1969, 370427, '389570', 1),
-(169, 'Hatchback', 4, 53, '3S7WT93G0UMK61742', 'OCCUPIED', 'Mercedes Benz', 'Impala', 1984, 135052, '225571', 7),
-(170, 'Sedan', 1, 64, 'LJ75XZZWXBVR54751', 'RESERVED', 'Mini', 'CTS', 1990, 318836, '85165', 7),
-(171, 'Sedan', 3, 19, '6U4WNFM173F291644', 'SERVICE', 'Smart', 'Malibu', 1972, 365998, '933499', 4),
-(172, 'Micro', 1, 42, 'DTSVM5THZWXR39046', 'SERVICE', 'Rolls Royce', 'Camaro', 2017, 65938, '182708', 7),
-(173, 'Hatchback', 1, 16, '7N82TWRT4SJE13399', 'RESERVED', 'Bugatti', 'Colorado', 1999, 199730, '805897', 6),
-(174, 'Micro', 6, 19, 'P5Y7YS6EFNAA75534', 'OCCUPIED', 'Polestar', 'CX-9', 1991, 350507, '941272', 1),
-(175, 'SUV', 6, 49, 'H1MYM350YATU43785', 'OCCUPIED', 'Audi', 'Fortwo', 2010, 21985, '16641', 7),
-(176, 'Hatchback', 3, 51, 'NXSULA4B6GG090856', 'SERVICE', 'Jaguar', 'A4', 1981, 114007, '819735', 3),
-(177, 'Sedan', 6, 37, '6BJXGDYYRSRB30224', 'AVAILABLE', 'Ford', 'Grand Caravan', 2000, 22951, '191452', 1),
-(178, 'Sedan', 5, 30, '01K35UN6WBAZ92711', 'OCCUPIED', 'Smart', 'Expedition', 1957, 354422, '450665', 3),
-(179, 'Sedan', 1, 40, '8NGHRT2YH5K710729', 'OCCUPIED', 'Fiat', 'Prius', 1982, 192796, '824597', 8),
-(180, 'Hatchback', 6, 41, '4HPTBGHX09J086909', 'SERVICE', 'Toyota', 'Corvette', 2019, 168772, '839466', 5),
-(181, 'SUV', 4, 15, '6PNK9MRT5WA393699', 'RESERVED', 'Mercedes Benz', 'Volt', 1975, 333266, '537393', 1),
-(182, 'Coupe', 1, 22, 'FBCK9GD2D2TA49871', 'AVAILABLE', 'Fiat', 'ATS', 2018, 309339, '874616', 1),
-(183, 'Sedan', 3, 61, 'FNRWD6H98HCE63806', 'SERVICE', 'Smart', 'Roadster', 1992, 114311, '871923', 4),
-(184, 'Micro', 1, 35, 'CV0142S41XCE30274', 'OCCUPIED', 'Fiat', 'Fiesta', 1959, 241043, '313954', 6),
-(185, 'Coupe', 2, 58, '4B2Z2D8LTTJH78963', 'RESERVED', 'Porsche', 'LeBaron', 2017, 132107, '21881', 1),
-(186, 'Van', 2, 47, 'Y34YW8LEAMP273109', 'SERVICE', 'Rolls Royce', 'Camaro', 1961, 138715, '951052', 4),
-(187, 'Micro', 5, 62, '7DMYT6VZW4EX82880', 'SERVICE', 'Fiat', 'XTS', 1953, 63976, '893239', 2),
-(188, 'Hatchback', 4, 30, 'AZ4GLYZG5FNZ88515', 'RESERVED', 'Dodge', 'Golf', 2006, 266533, '472226', 7),
-(189, 'Coupe', 5, 33, 'TG2P7N907ZSP38811', 'AVAILABLE', 'Lamborghini', 'Jetta', 1998, 271646, '92283', 2),
-(190, 'Coupe', 1, 3, 'X9BBYDWM01RH33523', 'OCCUPIED', 'Chevrolet', 'Altima', 2023, 357022, '100158', 7),
-(191, 'Hatchback', 1, 54, 'UDLZ5CJ7D3ER46275', 'OCCUPIED', 'Bentley', 'F-150', 1950, 167350, '378386', 1),
-(192, 'Hatchback', 1, 55, 'NKTDUKSECSKX36469', 'OCCUPIED', 'Ford', 'Durango', 1955, 66274, '77271', 8),
-(193, 'Sedan', 4, 44, 'ASRE46ZS9DD748079', 'OCCUPIED', 'Cadillac', 'Beetle', 1973, 313454, '932404', 4),
-(194, 'SUV', 2, 52, 'PY9E30V77LP647393', 'OCCUPIED', 'Honda', 'Explorer', 1977, 229552, '831884', 2),
-(195, 'Sedan', 1, 61, '9BTK5TEA5TYV11744', 'AVAILABLE', 'Chrysler', 'Model 3', 2016, 62483, '553662', 6),
-(196, 'Hatchback', 4, 11, '1RKSUGM5NXWM72989', 'SERVICE', 'Volvo', 'Camry', 1979, 324980, '974171', 7),
-(197, 'Coupe', 2, 10, 'GNH06CX95EW413856', 'OCCUPIED', 'Honda', 'Golf', 1971, 50211, '670959', 6),
-(198, 'Micro', 3, 14, 'CW5KLP63U9JP62125', 'SERVICE', 'Volkswagen', 'Fiesta', 1967, 380979, '333591', 7),
-(199, 'Sedan', 5, 42, 'MRL9SAWP29NF60697', 'AVAILABLE', 'Fiat', 'El Camino', 1975, 95282, '491219', 3),
-(200, 'Hatchback', 1, 27, 'NBJFMHYHZ2VW32027', 'OCCUPIED', 'Hyundai', 'Model Y', 2023, 168612, '995363', 5),
-(201, 'Sedan', 2, 8, '834P9PDSHMSS71898', 'OCCUPIED', 'Rolls Royce', 'Focus', 2020, 251601, '454693', 1),
-(202, 'Sedan', 1, 27, 'WWTUDLRGXXM979404', 'OCCUPIED', 'Tesla', 'Prius', 2007, 217269, '481962', 1),
-(203, 'Coupe', 1, 41, 'T3HY09XNFLK381036', 'OCCUPIED', 'Ferrari', 'Fortwo', 1952, 315430, '688560', 8),
-(204, 'Micro', 1, 54, '5ARS8N473NP765009', 'OCCUPIED', 'Bugatti', 'PT Cruiser', 2009, 168541, '904037', 5),
-(205, 'Coupe', 5, 9, 'SU0UBEB9T4U274238', 'OCCUPIED', 'Mercedes Benz', 'Silverado', 2020, 30952, '380120', 6),
-(206, 'Sedan', 6, 21, 'R2TNBV18VPXZ18457', 'OCCUPIED', 'Jeep', 'Grand Cherokee', 1976, 210321, '772469', 2),
-(207, 'Sedan', 1, 9, 'GU4T5J46N5XC60105', 'AVAILABLE', 'Rolls Royce', 'Model 3', 2018, 84516, '139518', 6),
-(208, 'Sedan', 2, 51, '82L56RS5C5VM23562', 'AVAILABLE', 'Chevrolet', 'ATS', 1991, 49407, '193621', 6),
-(209, 'Coupe', 6, 22, '7PX204EKPFP460122', 'SERVICE', 'Nissan', 'V90', 1950, 94654, '513078', 1),
-(210, 'Hatchback', 5, 24, 'A627J0W3PUK273907', 'OCCUPIED', 'Porsche', 'Fortwo', 1976, 140648, '984356', 8),
-(211, 'Coupe', 3, 52, 'NXTLHBF6XEYB44172', 'OCCUPIED', 'Ferrari', 'A8', 2009, 209209, '263064', 8),
-(212, 'Sedan', 1, 51, 'YS333B5SLPAA63998', 'OCCUPIED', 'Mini', 'Aventador', 2016, 381667, '246855', 7),
-(213, 'Hatchback', 3, 30, 'Z9T3V380DFD375191', 'SERVICE', 'Jeep', 'LeBaron', 1957, 120839, '907313', 6),
-(214, 'Hatchback', 2, 63, 'NNTZMEHFFZUP66623', 'SERVICE', 'Aston Martin', 'Grand Caravan', 2007, 211787, '501867', 5),
-(215, 'Sedan', 1, 20, '80VKVLZFYHZW86606', 'AVAILABLE', 'Tesla', 'A8', 1996, 105182, '742822', 1),
-(216, 'Sedan', 2, 46, '6Z4GK7CFF1XL14064', 'AVAILABLE', 'Smart', 'Durango', 2009, 171630, '595400', 6),
-(217, 'Hatchback', 6, 33, 'BD6ZYGA7EUWT69742', 'RESERVED', 'Mini', 'Grand Cherokee', 1959, 56212, '799510', 8),
-(218, 'Coupe', 5, 28, '8JH8SSBWF1AF26063', 'SERVICE', 'Hyundai', 'PT Cruiser', 1968, 349625, '596324', 8),
-(219, 'Coupe', 1, 40, '6L39GLMJHSCN18795', 'SERVICE', 'Chevrolet', 'Charger', 2014, 183860, '748480', 1),
-(220, 'SUV', 4, 47, 'LF4E3CZ04NKZ46124', 'RESERVED', 'Nissan', 'Land Cruiser', 1993, 279387, '136338', 1),
-(221, 'Hatchback', 4, 45, 'B74GUSVC4AWF36514', 'RESERVED', 'Ferrari', 'Taurus', 1974, 151371, '112973', 7),
-(222, 'Hatchback', 4, 16, 'KNDEDY4NZ3PM46672', 'OCCUPIED', 'Fiat', 'Grand Cherokee', 2017, 394874, '559092', 8),
-(223, 'Hatchback', 1, 14, '6NTGFBUW6BP515176', 'SERVICE', 'Jeep', 'XC90', 1990, 164947, '841940', 2),
-(224, 'Sedan', 2, 20, 'FFWSFHA8FYP368191', 'OCCUPIED', 'Mazda', '2', 1950, 292495, '221682', 2),
-(225, 'Coupe', 6, 59, 'L45Y5FW86GHB22902', 'AVAILABLE', 'Cadillac', 'Mustang', 1976, 372557, '696595', 6),
-(226, 'Sedan', 4, 25, '64FJ2XF1GAYC70315', 'AVAILABLE', 'Ford', 'Corvette', 2010, 140129, '605966', 3),
-(227, 'Hatchback', 2, 19, 'D62WUJ9XLALS90003', 'AVAILABLE', 'Mazda', 'Ranchero', 2022, 41725, '711722', 7),
-(228, 'Van', 4, 18, 'KT39VT57JKG162201', 'AVAILABLE', 'BMW', 'F-150', 1985, 361998, '613557', 1),
-(229, 'Micro', 4, 34, 'TMZTAHSTBVEF93846', 'OCCUPIED', 'Porsche', 'Malibu', 1981, 389256, '345638', 1),
-(230, 'Coupe', 1, 46, 'LY5WF3FPRHA645753', 'SERVICE', 'Rolls Royce', 'Mercielago', 2003, 284079, '313758', 2),
-(231, 'Coupe', 6, 59, 'LTA6SX1ZDERS23171', 'SERVICE', 'Polestar', 'CTS', 1974, 77786, '791061', 6),
-(232, 'SUV', 4, 20, 'ZGECS7BKXLKY47796', 'RESERVED', 'Fiat', '2', 1984, 174118, '479474', 2),
-(233, 'Hatchback', 5, 59, 'HNT9504WZJJ455429', 'OCCUPIED', 'Land Rover', 'Fortwo', 1974, 259391, '988105', 2),
-(234, 'Sedan', 6, 27, 'PHH0HRPNYPHD56727', 'AVAILABLE', 'Aston Martin', 'Model 3', 1967, 2980, '777015', 4),
-(235, 'Hatchback', 4, 28, 'LTM26PTWBZL641449', 'OCCUPIED', 'Maserati', 'Grand Cherokee', 1967, 155260, '859067', 1),
-(236, 'Sedan', 4, 57, 'GRUCRUG2CTXN27941', 'SERVICE', 'Hyundai', '911', 1983, 133907, '236783', 1),
-(237, 'Hatchback', 5, 65, 'KC4RS73MTBG329238', 'RESERVED', 'Chrysler', 'Accord', 1990, 399380, '360916', 8),
-(238, 'Micro', 5, 12, '8PF7CW35BZY018710', 'OCCUPIED', 'Land Rover', 'CTS', 1976, 28835, '911312', 1),
-(239, 'Hatchback', 3, 5, 'HCB0XJPFCWEN83891', 'AVAILABLE', 'Aston Martin', 'XTS', 1962, 297640, '359072', 1),
-(240, 'Coupe', 1, 59, 'W5AGNXKUPSXN24806', 'OCCUPIED', 'Polestar', 'Expedition', 2008, 103308, '939292', 5),
-(241, 'Hatchback', 4, 1, '8568C0UMLSUE41766', 'OCCUPIED', 'Jeep', 'Model S', 1983, 237668, '35256', 1),
-(242, 'Sedan', 1, 36, '1DYDXXTTJFL885423', 'AVAILABLE', 'Land Rover', 'Roadster', 2015, 146015, '166501', 1),
-(243, 'Coupe', 3, 36, 'FP4UK37L8ETL38235', 'OCCUPIED', 'BMW', 'Model T', 1956, 200541, '818056', 1),
-(244, 'Hatchback', 4, 5, '8ZVRX18T1UP482668', 'AVAILABLE', 'Audi', 'Challenger', 2006, 137542, '155641', 4),
-(245, 'Coupe', 2, 55, '00HJHNT8B6XD83633', 'OCCUPIED', 'Maserati', 'CTS', 1990, 354935, '575927', 6),
-(246, 'Coupe', 6, 50, '2H3XKSCVBVX848053', 'RESERVED', 'Jaguar', 'Land Cruiser', 1984, 281137, '357596', 1),
-(247, 'Hatchback', 4, 17, 'ZKUXUM2YM8P556318', 'RESERVED', 'Ferrari', 'Model X', 1999, 112455, '203024', 1),
-(248, 'Sedan', 3, 1, '5RXE202CTFXJ14336', 'OCCUPIED', 'Ford', 'Sentra', 2022, 47649, '326057', 5),
-(249, 'Hatchback', 2, 26, '78DB6BNZXXRU42313', 'RESERVED', 'Ferrari', 'PT Cruiser', 2013, 120216, '795350', 5),
-(250, 'Sedan', 3, 57, 'BF1N7M8FZXCV58182', 'AVAILABLE', 'Mazda', 'Camaro', 1974, 55239, '872091', 7),
-(251, 'Sedan', 1, 66, 'Z839METAW2EX82002', 'RESERVED', 'Land Rover', 'Alpine', 1958, 389928, '46444', 1),
-(252, 'Coupe', 6, 23, '167YV51N53GC45357', 'SERVICE', 'Volkswagen', 'Camaro', 1994, 370549, '717020', 3),
-(253, 'Sedan', 3, 55, 'LJDGD8APWZYX22564', 'OCCUPIED', 'Chrysler', 'Ranchero', 1995, 107753, '908682', 5),
-(254, 'Micro', 1, 66, '64J9K5GU7UTR98361', 'AVAILABLE', 'Lamborghini', 'Corvette', 1970, 223078, '697505', 6),
-(255, 'Micro', 1, 25, '7NUR5SCKZHN667868', 'OCCUPIED', 'Kia', 'Alpine', 1992, 80133, '764729', 2),
-(256, 'Hatchback', 1, 65, '7UGEGYSKZSL380143', 'AVAILABLE', 'Kia', 'ATS', 1952, 356294, '57772', 1),
-(257, 'Sedan', 1, 45, 'BP3UJD02BKYS80906', 'OCCUPIED', 'Chrysler', 'Volt', 1982, 270326, '259243', 2),
-(258, 'Coupe', 3, 29, 'CHK6WJN507XT87103', 'OCCUPIED', 'Land Rover', 'Ranchero', 1957, 125860, '522377', 1),
-(259, 'Micro', 4, 9, '8FKY0G1HGTZU39132', 'RESERVED', 'Polestar', 'Focus', 1964, 205536, '765518', 1),
-(260, 'SUV', 1, 27, 'VF1EE7TT0KUF60547', 'SERVICE', 'Mercedes Benz', 'Escalade', 1998, 336464, '532993', 1),
-(261, 'Sedan', 1, 37, 'L0Y2LZ3373SX69885', 'SERVICE', 'Cadillac', 'PT Cruiser', 2002, 362114, '709945', 1),
-(262, 'Hatchback', 1, 36, '9R9BKA9SF3BG40811', 'AVAILABLE', 'Chevrolet', 'Silverado', 1993, 138634, '203682', 2),
-(263, 'Micro', 5, 69, 'D4YH2DCBXYVD89883', 'OCCUPIED', 'Chevrolet', 'LeBaron', 2010, 300906, '312130', 6),
-(264, 'Coupe', 6, 29, 'R26CECASP1M239594', 'RESERVED', 'Polestar', '2', 1973, 73662, '496891', 5),
-(265, 'Sedan', 4, 7, 'A1P2DCKYBHDH12465', 'RESERVED', 'Kia', 'Land Cruiser', 1961, 53610, '660113', 5),
-(266, 'Coupe', 1, 16, '0HBZRGUBXCFC38912', 'AVAILABLE', 'Fiat', 'Impala', 2009, 203413, '473532', 4),
-(267, 'SUV', 2, 57, 'K460SH7TXEJP76973', 'RESERVED', 'Jeep', 'Grand Caravan', 1989, 24645, '569809', 6),
-(268, 'Coupe', 2, 32, '2PS0L5DVJELT19208', 'SERVICE', 'Kia', 'CTS', 1968, 368782, '441765', 1),
-(269, 'Coupe', 3, 56, 'BYU4ALGXLFM768631', 'AVAILABLE', 'Chevrolet', 'F-150', 2000, 73172, '51564', 1),
-(270, 'Sedan', 1, 45, 'MUKKGE0287AG56898', 'SERVICE', 'Aston Martin', 'Beetle', 1999, 311267, '924793', 5),
-(271, 'Hatchback', 3, 56, 'TESY8W9RLGL594551', 'OCCUPIED', 'Smart', 'V90', 1971, 142571, '702494', 7),
-(272, 'Coupe', 1, 8, 'LUNMZED3G8ZR40385', 'SERVICE', 'Cadillac', 'Camaro', 1984, 73180, '327787', 1),
-(273, 'Coupe', 5, 11, '7D34RK1VRCRE62049', 'RESERVED', 'Land Rover', 'Colorado', 1980, 73936, '293310', 7),
-(274, 'Sedan', 4, 28, 'ACLUG24W6FT433945', 'RESERVED', 'Tesla', 'Prius', 2001, 171778, '199283', 1),
-(275, 'Hatchback', 4, 38, 'XJNN3FTUP6VL75448', 'OCCUPIED', 'Land Rover', 'Challenger', 1969, 387025, '93290', 6),
-(276, 'Hatchback', 2, 37, '9ZZBB6WJ9TD730810', 'RESERVED', 'Audi', 'Grand Caravan', 1963, 352969, '862959', 6),
-(277, 'Sedan', 1, 2, 'SEB3065F7VFA90409', 'SERVICE', 'Polestar', 'XC90', 1961, 357662, '945502', 7),
-(278, 'Coupe', 4, 37, '4ZPGBG4AVKNW43606', 'OCCUPIED', 'Ford', 'Model 3', 1967, 71909, '140028', 6),
-(279, 'Coupe', 1, 41, 'DMDZ1FWAXEW056898', 'RESERVED', 'Fiat', '911', 2000, 341894, '490310', 1),
-(280, 'Sedan', 1, 23, 'JEZ2XUZW7SEJ32104', 'OCCUPIED', 'Rolls Royce', 'Model T', 2001, 165092, '547332', 6),
-(281, 'Hatchback', 2, 60, 'FBTX91GEVEA793294', 'SERVICE', 'Dodge', 'Silverado', 1983, 246389, '268462', 4),
-(282, 'Coupe', 1, 26, 'CP4JPRTTG5GX82634', 'AVAILABLE', 'Lamborghini', 'Colorado', 1963, 389941, '129933', 1),
-(283, 'Hatchback', 1, 16, 'CDR233FMA5YB77427', 'RESERVED', 'Rolls Royce', 'Corvette', 1988, 337864, '105509', 4),
-(284, 'Coupe', 4, 4, 'X7LZH2P26SCT92076', 'RESERVED', 'Maserati', 'Escalade', 1956, 170218, '648516', 8),
-(285, 'Coupe', 3, 39, '2UX3164T4HTS46061', 'AVAILABLE', 'Ferrari', 'XC90', 2012, 107971, '586481', 7),
-(286, 'Hatchback', 2, 44, 'M7E93J3YZKAS32963', 'AVAILABLE', 'Kia', 'Accord', 2021, 155403, '521983', 1),
-(287, 'Sedan', 1, 32, 'LZNL3Z2C1HY643079', 'RESERVED', 'Cadillac', 'Alpine', 1974, 184014, '17333', 6),
-(288, 'Hatchback', 4, 31, 'NRK21K3012YR53606', 'OCCUPIED', 'Mini', 'Altima', 2003, 183571, '878782', 1),
-(289, 'Micro', 1, 55, '2J9VXXEW66WL11493', 'RESERVED', 'Mini', 'Altima', 1997, 213518, '816393', 3),
-(290, 'Sedan', 1, 45, 'NHA59LXYPTPU56790', 'AVAILABLE', 'Mazda', 'Durango', 1952, 177730, '759600', 1),
-(291, 'Hatchback', 4, 57, 'J8K503240HEV83859', 'RESERVED', 'Chrysler', 'Malibu', 1969, 215265, '777221', 4),
-(292, 'Sedan', 4, 15, 'GP6HRZTGK8KE82575', 'SERVICE', 'Nissan', 'Cruze', 1964, 309659, '454997', 6),
-(293, 'Micro', 4, 41, 'YDAHSL2C49CG33001', 'SERVICE', 'Audi', 'Model 3', 1965, 240398, '416744', 2),
-(294, 'Coupe', 5, 21, '3T2BXHWN37T656726', 'OCCUPIED', 'Dodge', 'Camaro', 1981, 307805, '750123', 1),
-(295, 'Coupe', 5, 50, 'X991A1TXLHJL12146', 'OCCUPIED', 'Kia', 'Impala', 1990, 276911, '334077', 6),
-(296, 'Coupe', 1, 50, 'G6DLN5SSS5BP96137', 'RESERVED', 'Mazda', 'Fiesta', 1980, 39512, '842223', 8),
-(297, 'Micro', 3, 28, '6U2F45SNP8R736983', 'OCCUPIED', 'Volkswagen', 'El Camino', 1981, 127972, '959816', 1),
-(298, 'Micro', 1, 59, 'HZMR2VTKAURX74408', 'RESERVED', 'Kia', 'Impala', 2015, 227127, '706923', 1),
-(299, 'Coupe', 4, 3, 'B6YN0T85A0UT82224', 'SERVICE', 'Volvo', 'Land Cruiser', 1960, 361535, '564965', 3),
-(300, 'Sedan', 1, 44, '8W2US7ZYU3VW51006', 'OCCUPIED', 'Tesla', 'ATS', 1954, 54847, '951979', 8),
-(301, 'Coupe', 5, 4, 'SXC04HPK5VN527557', 'AVAILABLE', 'BMW', 'Expedition', 2016, 320634, '273618', 2),
-(302, 'Sedan', 2, 27, '9ZEL8VG8DBJ818173', 'AVAILABLE', 'Rolls Royce', 'Expedition', 1970, 29112, '48426', 5);
+(1, 'Coupe', 2, 3, 'E23DPMU87WSY97401', 'AVAILABLE', 'Honda', 'A8', '1968', 363590, 178453, 1),
+(2, 'Coupe', 5, 58, '13W06H8UUWCE96398', 'SERVICE', 'Nissan', 'Volt', '1952', 287685, 204478, 1),
+(3, 'Minivan', 2, 2, 'G35UHW117JMR30235', 'OCCUPIED', 'Land Rover', 'Grand Cherokee', '1981', 5713, 908709, 5),
+(4, 'Sedan', 1, 44, '9Z14UUYXX7FP10156', 'RESERVED', 'Mini', 'CTS', '1951', 342880, 718233, 7),
+(5, 'Coupe', 1, 7, 'Y9D765R2XXHW42950', 'OCCUPIED', 'Ferrari', 'Wrangler', '2011', 371899, 567689, 6),
+(6, 'Coupe', 4, 41, '3821J6DNY1LL95066', 'OCCUPIED', 'Mazda', 'Jetta', '1958', 291909, 587710, 2),
+(7, 'Coupe', 4, 47, 'D2LX6J8AA6UL66632', 'SERVICE', 'Smart', 'Mercielago', '1954', 326405, 530981, 3),
+(8, 'Hatchback', 6, 39, 'B6X3016VAXDY41677', 'AVAILABLE', 'Nissan', 'Fortwo', '2020', 2298, 142203, 6),
+(9, 'Hatchback', 2, 55, 'HAXVFNBZZ3W245772', 'SERVICE', 'Polestar', 'Model Y', '1993', 127337, 56652, 4),
+(10, 'Hatchback', 6, 18, 'PL1U44C505NF26226', 'SERVICE', 'Land Rover', 'Corvette', '1953', 355454, 742843, 2),
+(11, 'Coupe', 1, 65, '3KME6D0HD1HF47595', 'OCCUPIED', 'Honda', 'Expedition', '1988', 105626, 603623, 1),
+(12, 'Sedan', 3, 63, 'VCDHJDCK25VZ94817', 'AVAILABLE', 'Tesla', 'Fortwo', '1981', 9368, 343699, 5),
+(13, 'SUV', 1, 51, 'C8TREW56HXKN15762', 'OCCUPIED', 'Mini', 'Land Cruiser', '1992', 308675, 888162, 1),
+(15, 'Sedan', 3, 38, 'AJHUDFV9K3AA12143', 'OCCUPIED', 'Smart', 'Civic', '1963', 6595, 31905, 4),
+(16, 'Micro', 3, 62, 'ULN6UZG9N0UR72266', 'SERVICE', 'Jeep', 'Expedition', '1963', 262914, 492506, 8),
+(17, 'Hatchback', 2, 55, 'JT43FBJPMDZN79359', 'OCCUPIED', 'Honda', 'Charger', '1976', 362660, 368985, 3),
+(18, 'Sedan', 6, 19, 'FJA4T1B278MM29426', 'SERVICE', 'Smart', 'XTS', '1967', 75949, 643847, 8),
+(19, 'Coupe', 1, 1, 'CMBST175V6BJ77699', 'RESERVED', 'Audi', '911', '1958', 241320, 928264, 7),
+(20, 'Hatchback', 1, 16, 'CUCPPPRVNMPH90538', 'SERVICE', 'Tesla', 'CTS', '2015', 80931, 967069, 2),
+(21, 'Coupe', 1, 5, '6DTF2RG0ESBK38125', 'AVAILABLE', 'Polestar', 'Countach', '1954', 31247, 94841, 7),
+(22, 'Sedan', 4, 47, '41UYE21W9VY474938', 'SERVICE', 'Honda', 'Spyder', '1996', 344630, 459057, 3),
+(23, 'Coupe', 4, 12, 'MBCX21BNSSCZ70449', 'OCCUPIED', 'Volkswagen', 'V90', '2022', 354721, 888629, 1),
+(24, 'Sedan', 3, 58, 'G3S3CCYJ2XA637073', 'SERVICE', 'Polestar', 'Expedition', '1950', 36891, 876682, 1),
+(25, 'Coupe', 6, 47, 'LY0PAP1FZLVD17656', 'OCCUPIED', 'Audi', 'Element', '1955', 301229, 179098, 1),
+(26, 'Coupe', 6, 59, 'FDJY6AA7H1J512825', 'RESERVED', 'Land Rover', 'Aventador', '1976', 36275, 92638, 3),
+(27, 'Hatchback', 3, 16, 'WUHDGAJHX3BE87429', 'AVAILABLE', 'Chevrolet', 'Impala', '1992', 281148, 612575, 1),
+(28, 'SUV', 3, 42, 'ST3LGUBYFLS774253', 'OCCUPIED', 'Nissan', 'Sentra', '2009', 8701, 388864, 6),
+(29, 'Sedan', 4, 23, '0GDPSFV49HCZ53308', 'SERVICE', 'Tesla', 'Element', '1972', 182712, 279506, 1),
+(30, 'Hatchback', 6, 56, 'XG295Z15SEXH17578', 'RESERVED', 'Bentley', 'El Camino', '1958', 373825, 627276, 6),
+(31, 'Coupe', 1, 4, 'B5SU8KJ6M8XA85364', 'SERVICE', 'Rolls Royce', 'Alpine', '1997', 331064, 522316, 2),
+(32, 'Hatchback', 2, 61, 'MFKAWCZVUWKM88682', 'RESERVED', 'Honda', 'Wrangler', '2014', 187990, 114480, 6),
+(33, 'Coupe', 5, 14, 'TJK3YWPRFEB198649', 'AVAILABLE', 'Rolls Royce', 'Aventador', '1983', 280040, 660528, 1),
+(34, 'Coupe', 1, 25, 'CDBAA4PJ8VUJ23895', 'RESERVED', 'Kia', 'Corvette', '1996', 91084, 892631, 3),
+(35, 'Coupe', 6, 12, '76BEMJCLVTFA76890', 'RESERVED', 'Jaguar', 'Model 3', '2009', 206498, 170491, 1),
+(36, 'Micro', 6, 54, 'CUX3C61PGLL980498', 'OCCUPIED', 'Chrysler', 'Model S', '1960', 230015, 511981, 2),
+(37, 'Hatchback', 1, 28, 'NY118AXB87N559288', 'OCCUPIED', 'Porsche', 'Spyder', '1972', 242258, 476850, 1),
+(38, 'Sedan', 4, 45, 'APVBZZM27YZK94933', 'SERVICE', 'Volvo', 'Spyder', '1955', 102185, 542964, 1),
+(39, 'Micro', 1, 4, 'V7ZPSUJ995WW67931', 'AVAILABLE', 'Ford', '1', '1982', 194781, 644681, 1),
+(40, 'Sedan', 1, 23, '7FP2WFWL84L380790', 'RESERVED', 'Volvo', 'Model T', '1950', 184003, 198782, 2),
+(41, 'Micro', 6, 31, 'CH8C5S6P89VS54865', 'AVAILABLE', 'Ford', 'Colorado', '2001', 303011, 659786, 1),
+(42, 'SUV', 1, 17, 'RGBWCA9SWJVH92248', 'OCCUPIED', 'Nissan', 'Model S', '1985', 176241, 618056, 4),
+(43, 'Sedan', 1, 59, 'MY0PDPD9MZPC47993', 'SERVICE', 'Jaguar', 'Model Y', '1970', 75825, 659242, 1),
+(44, 'Coupe', 1, 39, 'JGU476ARZAEU10975', 'RESERVED', 'Honda', 'Mustang', '2020', 109421, 283617, 6),
+(45, 'SUV', 4, 16, 'RD9XXZAY0FGN37152', 'SERVICE', 'Bugatti', 'Golf', '2017', 31814, 832598, 5),
+(46, 'Coupe', 6, 31, 'CL5LLWE8XPN669929', 'AVAILABLE', 'BMW', 'Escalade', '2005', 292157, 702577, 4),
+(47, 'Micro', 1, 37, 'DY80E6H1XHBH35349', 'OCCUPIED', 'Honda', 'Jetta', '2022', 20111, 708835, 1),
+(48, 'Coupe', 1, 22, 'WDYWN92Y9MCJ69961', 'AVAILABLE', 'Jeep', 'Beetle', '1998', 128732, 509634, 2),
+(49, 'Hatchback', 1, 67, '65MJPXK2S6UZ85955', 'RESERVED', 'Volvo', 'Prius', '1975', 23220, 994943, 8),
+(50, 'Hatchback', 2, 62, 'XYJP33UFYZL771346', 'AVAILABLE', 'Jaguar', 'Charger', '2005', 41538, 607965, 1),
+(51, 'Sedan', 5, 38, 'X1EC8AXC7LCT76633', 'RESERVED', 'Maserati', 'A4', '2003', 70233, 264178, 5),
+(52, 'Sedan', 5, 4, 'NAKMAABWURMC36564', 'RESERVED', 'Volkswagen', 'Charger', '1978', 159681, 10911, 5),
+(53, 'Hatchback', 3, 44, '8HLVVERM4CL725842', 'SERVICE', 'Ferrari', 'Volt', '2004', 2059, 973810, 7),
+(54, 'Hatchback', 6, 2, 'SABKHX0BU2HL33706', 'AVAILABLE', 'Lamborghini', 'Taurus', '1989', 22179, 632895, 8),
+(55, 'Micro', 6, 14, 'F5W45895X4TM15048', 'AVAILABLE', 'Honda', 'Golf', '1984', 117241, 262040, 4),
+(56, 'Coupe', 3, 63, 'SG3PN6BP6SGY78973', 'RESERVED', 'Dodge', 'Expedition', '2003', 194116, 391710, 7),
+(57, 'Coupe', 6, 65, '8T3HWZ99PKF334124', 'RESERVED', 'Audi', 'Camaro', '1965', 261126, 454552, 3),
+(58, 'Coupe', 1, 68, 'NSXWG176E0YS95487', 'RESERVED', 'Maserati', 'Countach', '2017', 80121, 897872, 6),
+(59, 'Coupe', 5, 7, 'V6HEWBB330RZ67213', 'RESERVED', 'Hyundai', 'Malibu', '2016', 288796, 683907, 6),
+(60, 'Sedan', 6, 38, 'RXD9SYB2STWR37606', 'AVAILABLE', 'Lamborghini', 'Explorer', '2007', 351069, 465066, 4),
+(61, 'Coupe', 1, 31, 'YD2PAU9XLNGG97896', 'SERVICE', 'Tesla', 'Jetta', '1963', 76896, 69953, 1),
+(62, 'Micro', 1, 41, 'WDPN3UYAM3VB50177', 'OCCUPIED', 'Bugatti', 'Jetta', '1990', 247981, 127774, 7),
+(63, 'Hatchback', 5, 44, 'NADBLJV27GAZ12259', 'OCCUPIED', 'Mini', 'Ranchero', '1967', 237552, 411023, 5),
+(64, 'Sedan', 4, 24, 'EL4LADWYHFPF62385', 'AVAILABLE', 'Toyota', 'CX-9', '1988', 353325, 256531, 4),
+(65, 'Van', 4, 58, 'YNMRD9ZJRFSJ22198', 'RESERVED', 'Tesla', 'El Camino', '2014', 39148, 475273, 4),
+(66, 'Coupe', 2, 10, 'KVC94TMJ7YNJ79034', 'SERVICE', 'Nissan', 'Malibu', '2009', 274141, 819453, 1),
+(67, 'Sedan', 6, 15, '7NL5MEJT44TC35831', 'RESERVED', 'Ferrari', 'Element', '1979', 94951, 842983, 3),
+(68, 'Hatchback', 4, 42, '10Z930WRX7KT97061', 'SERVICE', 'Smart', 'Jetta', '1994', 128008, 537040, 5),
+(69, 'Sedan', 1, 28, 'K4PX7RARC7W751698', 'AVAILABLE', 'Cadillac', 'Ranchero', '2008', 398126, 188074, 6),
+(70, 'Micro', 1, 13, '3TS6EMEFJ5X640418', 'OCCUPIED', 'Audi', 'LeBaron', '1961', 393567, 533505, 2),
+(71, 'Coupe', 3, 51, 'TD74SZMZVKZ678089', 'OCCUPIED', 'Bugatti', 'Ranchero', '1978', 275722, 879839, 6),
+(72, 'Hatchback', 5, 8, '6152N9YA3GHY63706', 'OCCUPIED', 'Land Rover', 'CX-9', '1984', 14089, 840738, 6),
+(73, 'Sedan', 5, 24, 'H0YZEHMK0EAC35447', 'OCCUPIED', 'Mercedes Benz', '1', '1964', 241697, 187143, 8),
+(74, 'Sedan', 1, 28, '65VGG892NNTE77813', 'SERVICE', 'Bentley', 'Malibu', '1994', 171382, 372268, 4),
+(75, 'Hatchback', 4, 69, 'DPKSCGZJNLPW17056', 'AVAILABLE', 'Jaguar', 'Escalade', '1978', 17920, 969390, 2),
+(76, 'Van', 2, 50, '1X0EXCSYFRS755923', 'OCCUPIED', 'Smart', 'Countach', '1957', 218449, 22648, 2),
+(77, 'Coupe', 2, 45, '4MYH3VARA5LJ62136', 'RESERVED', 'Bentley', 'Model S', '1977', 329582, 12383, 1),
+(78, 'Coupe', 1, 7, 'GR52YD3FPHFK36341', 'OCCUPIED', 'Jaguar', 'Corvette', '1992', 250524, 163295, 5),
+(79, 'Coupe', 4, 34, '48VS19C40GM631107', 'AVAILABLE', 'Chevrolet', 'Cruze', '2003', 261324, 711213, 1),
+(80, 'Coupe', 1, 12, 'GNLZWPC8T8LP79217', 'RESERVED', 'Audi', 'Wrangler', '2016', 74236, 831402, 5),
+(81, 'SUV', 5, 26, '7BXXXP06SUNR22706', 'AVAILABLE', 'Chevrolet', 'Charger', '1976', 261518, 660907, 1),
+(82, 'Micro', 1, 24, 'MSD6593076RW69702', 'RESERVED', 'Dodge', 'V90', '1954', 38529, 854485, 1),
+(83, 'Sedan', 4, 41, '5J2JBFC9M8ZK47811', 'RESERVED', 'BMW', 'Golf', '1969', 281611, 557960, 3),
+(84, 'Coupe', 2, 66, 'ECU5BKAR1VYE49092', 'SERVICE', 'Lamborghini', 'Volt', '1959', 52112, 607493, 6),
+(85, 'SUV', 2, 66, '8M06DS62APFL78148', 'RESERVED', 'Dodge', 'XTS', '2013', 381826, 981839, 5),
+(86, 'Sedan', 1, 61, '7X2AK3SFXBSC85448', 'RESERVED', 'Aston Martin', 'Altima', '2015', 331341, 977159, 8),
+(87, 'Micro', 5, 40, 'SHLYC71A52YN10973', 'RESERVED', 'Audi', 'Prius', '2015', 391030, 7903, 5),
+(88, 'Sedan', 1, 17, 'T0AP27W32YGC82253', 'RESERVED', 'Toyota', 'Camaro', '2006', 113931, 153713, 2),
+(89, 'SUV', 4, 34, '91KRWMSFMCNB67135', 'AVAILABLE', 'Mini', 'Roadster', '1960', 271783, 912135, 3),
+(90, 'Hatchback', 5, 51, 'CMTH5ZKGL2T349993', 'SERVICE', 'Tesla', 'Alpine', '1980', 173247, 615393, 4),
+(91, 'Sedan', 5, 12, '94DRDAD6WZNX36790', 'AVAILABLE', 'Chevrolet', 'Focus', '1999', 389327, 584574, 1),
+(92, 'Coupe', 1, 44, '94ML19N4CAJH59490', 'RESERVED', 'Hyundai', 'Expedition', '1958', 172172, 968108, 8),
+(93, 'Van', 3, 45, 'UPXJNACDAGCS52470', 'OCCUPIED', 'Jaguar', 'Cruze', '1988', 5140, 277165, 4),
+(94, 'Sedan', 2, 24, 'T89W30F6VEV385985', 'RESERVED', 'Ferrari', 'Countach', '1972', 358751, 447006, 6),
+(95, 'Coupe', 1, 55, 'CWLFC8MJDVRE32073', 'SERVICE', 'Toyota', 'Fiesta', '2017', 79213, 253705, 6),
+(96, 'Sedan', 2, 65, 'E69USX51SMFK31139', 'OCCUPIED', 'BMW', 'Model 3', '1999', 384616, 722441, 8),
+(97, 'Sedan', 6, 20, 'USA7R1ZP5MDC46241', 'SERVICE', 'Kia', 'Roadster', '1995', 140989, 864156, 1),
+(98, 'SUV', 2, 42, 'ZC6XTTT0LNY299601', 'OCCUPIED', 'Jeep', 'Countach', '1956', 382439, 834170, 1),
+(99, 'Sedan', 3, 14, 'C6NFXYJK5HL478761', 'SERVICE', 'Maserati', 'Durango', '1991', 233930, 363549, 1),
+(100, 'Coupe', 2, 10, 'PLWLBLZYHLU122618', 'SERVICE', 'Ferrari', 'CX-9', '1992', 89742, 685271, 1),
+(101, 'SUV', 6, 8, 'W514V8D40NWL36293', 'AVAILABLE', 'Kia', 'Beetle', '1962', 320409, 681480, 4),
+(102, 'Coupe', 2, 9, 'UNTJG0UJ89MA52293', 'SERVICE', 'Porsche', 'A8', '1960', 76909, 754892, 8),
+(103, 'Sedan', 2, 22, 'DV60UD94FDF661077', 'AVAILABLE', 'Aston Martin', 'V90', '1962', 109712, 699632, 3),
+(104, 'Coupe', 1, 13, '30N6G5TSLMH099649', 'AVAILABLE', 'Maserati', 'F-150', '1983', 143981, 164965, 1),
+(105, 'Hatchback', 4, 68, 'ELG65XDZ5RZR10232', 'OCCUPIED', 'Lamborghini', 'Colorado', '2003', 310006, 771636, 5),
+(106, 'Sedan', 1, 23, 'JDL635ZZYDW917319', 'SERVICE', 'Polestar', 'Volt', '1969', 355814, 750901, 5),
+(107, 'Hatchback', 3, 49, 'KVZ5J8M7J0LK15146', 'RESERVED', 'Mini', 'XC90', '1962', 320500, 930250, 5),
+(108, 'Micro', 3, 37, 'XR56KYDRA6VD97562', 'SERVICE', 'Maserati', 'Fortwo', '1954', 136802, 14882, 1),
+(109, 'Hatchback', 3, 38, 'D4CFZYBJSPT649447', 'AVAILABLE', 'Jeep', 'Taurus', '2008', 97006, 700978, 5),
+(110, 'Sedan', 3, 10, 'MVKHU6YY6XWZ45292', 'SERVICE', 'Bentley', 'Model T', '2008', 317137, 605006, 4),
+(111, 'Coupe', 2, 6, '6H2UR36HD7KZ19610', 'SERVICE', 'Ford', 'Jetta', '1990', 117173, 22265, 7),
+(112, 'Hatchback', 2, 67, 'HDFLXD3ZU8GJ56090', 'RESERVED', 'Tesla', 'LeBaron', '1978', 223823, 561108, 7),
+(113, 'Coupe', 3, 39, 'F2YF8KKLFWP260981', 'AVAILABLE', 'Maserati', 'Escalade', '1970', 322268, 441608, 7),
+(114, 'Hatchback', 1, 64, 'YA7BLN46HUJC70977', 'OCCUPIED', 'Nissan', '911', '1968', 177961, 637717, 6),
+(115, 'Sedan', 1, 63, '83J6FCG8M8KC81883', 'RESERVED', 'Chrysler', 'Model X', '1981', 45065, 355031, 6),
+(116, 'Micro', 4, 54, 'JAB8YB6PBWJM27520', 'RESERVED', 'Bentley', 'Mustang', '1977', 67727, 311795, 7),
+(117, 'Hatchback', 3, 11, 'R72ZHCPRSWJP89463', 'OCCUPIED', 'Rolls Royce', 'A8', '1990', 42709, 958483, 6),
+(118, 'Hatchback', 4, 31, 'HBYKWFDGHEXK33941', 'AVAILABLE', 'Nissan', 'Accord', '1999', 1666, 461094, 1),
+(119, 'SUV', 3, 53, 'E5GKHD9J0EJF56604', 'OCCUPIED', 'Maserati', 'Land Cruiser', '1998', 385473, 237731, 1),
+(120, 'Sedan', 1, 34, 'VFP28S1V2PBD63552', 'RESERVED', 'Dodge', 'Explorer', '1972', 29281, 33636, 7),
+(121, 'Van', 6, 10, '5EL1SKP7GNS843187', 'AVAILABLE', 'Lamborghini', 'ATS', '1989', 394582, 853116, 4),
+(122, 'Hatchback', 1, 16, 'JLT51XK61EER53432', 'SERVICE', 'Jeep', 'Silverado', '2005', 159453, 511526, 3),
+(123, 'Sedan', 2, 52, 'CUAEMXT8R9KA97234', 'RESERVED', 'Porsche', 'Impala', '1962', 261364, 679158, 2),
+(124, 'Sedan', 6, 3, 'K6BGJKM22WE834924', 'SERVICE', 'Mazda', 'Mustang', '1995', 138771, 864360, 4),
+(125, 'Sedan', 4, 64, 'PAHA1TCW2GSU96358', 'SERVICE', 'Jeep', 'Cruze', '1988', 153515, 246853, 1),
+(126, 'Sedan', 1, 34, 'G3SC5NF4G7RN30110', 'OCCUPIED', 'Fiat', 'Countach', '2008', 299293, 449095, 4),
+(127, 'Sedan', 4, 48, 'JPPY9X1S86P816527', 'SERVICE', 'Ferrari', '1', '1979', 124193, 747179, 3),
+(128, 'Micro', 1, 69, 'U8KG1PD7FGS249041', 'SERVICE', 'Mazda', 'Grand Cherokee', '1994', 364661, 411076, 3),
+(129, 'SUV', 4, 62, 'KH2A2BG7XXLJ13754', 'RESERVED', 'Nissan', 'Fortwo', '2008', 349116, 257946, 1),
+(130, 'SUV', 5, 35, 'C8EPVN3LC7M926232', 'RESERVED', 'Ford', 'XC90', '1963', 175167, 80581, 8),
+(131, 'SUV', 4, 55, '8ABAYYA5CTH679538', 'SERVICE', 'Nissan', 'Altima', '1988', 76805, 967128, 3),
+(132, 'Hatchback', 6, 31, '5ZAWJG8KV4GM29670', 'OCCUPIED', 'Mini', 'PT Cruiser', '1955', 130900, 995208, 3),
+(133, 'Hatchback', 4, 61, '1YAH4DUBY9RG21208', 'OCCUPIED', 'Bentley', 'Beetle', '2007', 267658, 432264, 3),
+(134, 'Coupe', 2, 3, 'W5DY2PCB26SK25691', 'SERVICE', 'Audi', 'Escalade', '2001', 325354, 181680, 3),
+(135, 'Coupe', 1, 39, 'Z8CBVNGWW1K222776', 'SERVICE', 'BMW', 'Beetle', '1960', 121069, 930519, 8),
+(136, 'Hatchback', 6, 49, 'UU8GRJ5KLTTY23797', 'RESERVED', 'Volvo', 'Golf', '1996', 244196, 262644, 5),
+(137, 'Hatchback', 3, 55, '7CPZ2PF37CS153249', 'RESERVED', 'Bentley', 'Element', '2001', 138476, 79086, 4),
+(138, 'Sedan', 6, 61, '5V5MNEHNEYPJ73732', 'AVAILABLE', 'Honda', 'Fortwo', '1993', 105112, 222612, 1),
+(139, 'Sedan', 1, 2, 'Z2YZLVERHUP961659', 'OCCUPIED', 'Volkswagen', 'Countach', '2015', 54934, 238343, 1),
+(140, 'Sedan', 4, 34, 'KS5LHRLYW6R788299', 'OCCUPIED', 'Honda', 'Element', '1997', 214555, 545958, 4),
+(141, 'Micro', 1, 23, '9NVKN9KCLYNC84217', 'SERVICE', 'Mercedes Benz', 'Durango', '1990', 156751, 646793, 2),
+(142, 'Micro', 2, 12, '6ZD33Z2FS8VJ53463', 'SERVICE', 'Mini', 'Land Cruiser', '2009', 102418, 200015, 8),
+(143, 'Micro', 2, 62, 'D8YHDGWPYNUY92742', 'AVAILABLE', 'Porsche', 'A4', '1977', 50051, 366178, 4),
+(144, 'Micro', 6, 66, 'N335FW99KHSD33046', 'AVAILABLE', 'Rolls Royce', 'Charger', '1982', 384797, 368947, 8),
+(145, 'Sedan', 1, 5, 'N021UU0913B884641', 'OCCUPIED', 'Cadillac', 'Escalade', '1956', 93101, 574485, 5),
+(146, 'Coupe', 4, 33, 'ZX2U03XFTGKP78321', 'AVAILABLE', 'Volvo', 'ATS', '1959', 114228, 611217, 1),
+(147, 'Coupe', 6, 11, 'G4EVF6715EMB64921', 'AVAILABLE', 'Maserati', 'Impala', '1976', 339414, 611292, 1),
+(148, 'Sedan', 3, 27, 'XZ4MLRH1EYT840020', 'RESERVED', 'Tesla', 'Civic', '1979', 82223, 358328, 4),
+(149, 'Hatchback', 1, 32, 'TCLF22CZHCGA30088', 'OCCUPIED', 'Land Rover', '911', '2020', 124259, 60259, 2),
+(150, 'Sedan', 1, 11, 'HWR00BXULWCT38480', 'AVAILABLE', 'Toyota', 'Mercielago', '1991', 298524, 857612, 3),
+(151, 'Sedan', 2, 26, 'S4YBBXPVKBPM31244', 'SERVICE', 'Nissan', 'F-150', '2021', 278214, 702559, 7),
+(152, 'Coupe', 4, 26, '848UT3BTLKV481819', 'OCCUPIED', 'Tesla', 'Roadster', '1959', 82140, 353503, 2),
+(153, 'Sedan', 3, 53, '5692J8AUKYZ792114', 'RESERVED', 'Volvo', 'A8', '2004', 42538, 365888, 1),
+(154, 'Coupe', 4, 50, 'YCBBPRUGSNJB52186', 'OCCUPIED', 'Nissan', '911', '1972', 191676, 569485, 5),
+(155, 'Hatchback', 5, 21, '1L359U2FT1AA37098', 'SERVICE', 'Audi', 'Charger', '1971', 141644, 324311, 7),
+(156, 'Hatchback', 3, 23, 'DKMZ8HG2U0BB52484', 'AVAILABLE', 'Toyota', '2', '1992', 219886, 693548, 6),
+(157, 'SUV', 1, 52, 'RD9HUFNZEAM532835', 'AVAILABLE', 'Jaguar', 'Model T', '2020', 230926, 191372, 3),
+(158, 'Coupe', 4, 53, '9DARL07NT2Z384921', 'RESERVED', 'Fiat', 'Volt', '1956', 73389, 477979, 1),
+(159, 'Sedan', 2, 40, 'CA7N42GR2SYG43274', 'SERVICE', 'Smart', 'Volt', '1990', 41127, 370254, 2),
+(160, 'Micro', 1, 40, 'Y3BYR7L1KGMB47546', 'SERVICE', 'Ford', 'Model X', '1987', 110927, 737994, 2),
+(161, 'Hatchback', 4, 11, '1VGLKACFCXA593690', 'SERVICE', 'Bugatti', 'Model 3', '2013', 135324, 581013, 8),
+(162, 'Sedan', 2, 2, '4BVH6NRANMVZ63196', 'RESERVED', 'Aston Martin', 'Civic', '2009', 297004, 865816, 5),
+(163, 'Hatchback', 5, 48, 'PFUG0VL303J061817', 'RESERVED', 'Fiat', 'Malibu', '1984', 123359, 128864, 1),
+(164, 'Hatchback', 1, 24, '0YTH2XGH57F924729', 'SERVICE', 'Chrysler', 'A4', '2014', 397449, 130319, 7),
+(165, 'Coupe', 1, 44, 'RNKD65F2YDMH54293', 'OCCUPIED', 'Rolls Royce', 'Camaro', '2020', 296458, 151883, 8),
+(166, 'Hatchback', 6, 10, 'BPFT26SSN9DN17264', 'RESERVED', 'Aston Martin', 'PT Cruiser', '1961', 1439, 801251, 2),
+(167, 'Coupe', 1, 57, 'PB8GY21SWGCJ62649', 'AVAILABLE', 'Smart', 'Model S', '2020', 109770, 918592, 5),
+(168, 'SUV', 4, 45, '34HBPDRL9SAH24735', 'RESERVED', 'Hyundai', '2', '1969', 370427, 389570, 1),
+(169, 'Hatchback', 4, 53, '3S7WT93G0UMK61742', 'OCCUPIED', 'Mercedes Benz', 'Impala', '1984', 135052, 225571, 7),
+(170, 'Sedan', 1, 64, 'LJ75XZZWXBVR54751', 'RESERVED', 'Mini', 'CTS', '1990', 318836, 85165, 7),
+(171, 'Sedan', 3, 19, '6U4WNFM173F291644', 'SERVICE', 'Smart', 'Malibu', '1972', 365998, 933499, 4),
+(172, 'Micro', 1, 42, 'DTSVM5THZWXR39046', 'SERVICE', 'Rolls Royce', 'Camaro', '2017', 65938, 182708, 7),
+(173, 'Hatchback', 1, 16, '7N82TWRT4SJE13399', 'RESERVED', 'Bugatti', 'Colorado', '1999', 199730, 805897, 6),
+(174, 'Micro', 6, 19, 'P5Y7YS6EFNAA75534', 'OCCUPIED', 'Polestar', 'CX-9', '1991', 350507, 941272, 1),
+(175, 'SUV', 6, 49, 'H1MYM350YATU43785', 'OCCUPIED', 'Audi', 'Fortwo', '2010', 21985, 16641, 7),
+(176, 'Hatchback', 3, 51, 'NXSULA4B6GG090856', 'SERVICE', 'Jaguar', 'A4', '1981', 114007, 819735, 3),
+(177, 'Sedan', 6, 37, '6BJXGDYYRSRB30224', 'AVAILABLE', 'Ford', 'Grand Caravan', '2000', 22951, 191452, 1),
+(178, 'Sedan', 5, 30, '01K35UN6WBAZ92711', 'OCCUPIED', 'Smart', 'Expedition', '1957', 354422, 450665, 3),
+(179, 'Sedan', 1, 40, '8NGHRT2YH5K710729', 'OCCUPIED', 'Fiat', 'Prius', '1982', 192796, 824597, 8),
+(180, 'Hatchback', 6, 41, '4HPTBGHX09J086909', 'SERVICE', 'Toyota', 'Corvette', '2019', 168772, 839466, 5),
+(181, 'SUV', 4, 15, '6PNK9MRT5WA393699', 'RESERVED', 'Mercedes Benz', 'Volt', '1975', 333266, 537393, 1),
+(182, 'Coupe', 1, 22, 'FBCK9GD2D2TA49871', 'AVAILABLE', 'Fiat', 'ATS', '2018', 309339, 874616, 1),
+(183, 'Sedan', 3, 61, 'FNRWD6H98HCE63806', 'SERVICE', 'Smart', 'Roadster', '1992', 114311, 871923, 4),
+(184, 'Micro', 1, 35, 'CV0142S41XCE30274', 'OCCUPIED', 'Fiat', 'Fiesta', '1959', 241043, 313954, 6),
+(185, 'Coupe', 2, 58, '4B2Z2D8LTTJH78963', 'RESERVED', 'Porsche', 'LeBaron', '2017', 132107, 21881, 1),
+(186, 'Van', 2, 47, 'Y34YW8LEAMP273109', 'SERVICE', 'Rolls Royce', 'Camaro', '1961', 138715, 951052, 4),
+(187, 'Micro', 5, 62, '7DMYT6VZW4EX82880', 'SERVICE', 'Fiat', 'XTS', '1953', 63976, 893239, 2),
+(188, 'Hatchback', 4, 30, 'AZ4GLYZG5FNZ88515', 'RESERVED', 'Dodge', 'Golf', '2006', 266533, 472226, 7),
+(189, 'Coupe', 5, 33, 'TG2P7N907ZSP38811', 'AVAILABLE', 'Lamborghini', 'Jetta', '1998', 271646, 92283, 2),
+(190, 'Coupe', 1, 3, 'X9BBYDWM01RH33523', 'OCCUPIED', 'Chevrolet', 'Altima', '2023', 357022, 100158, 7),
+(191, 'Hatchback', 1, 54, 'UDLZ5CJ7D3ER46275', 'OCCUPIED', 'Bentley', 'F-150', '1950', 167350, 378386, 1),
+(192, 'Hatchback', 1, 55, 'NKTDUKSECSKX36469', 'OCCUPIED', 'Ford', 'Durango', '1955', 66274, 77271, 8),
+(193, 'Sedan', 4, 44, 'ASRE46ZS9DD748079', 'OCCUPIED', 'Cadillac', 'Beetle', '1973', 313454, 932404, 4),
+(194, 'SUV', 2, 52, 'PY9E30V77LP647393', 'OCCUPIED', 'Honda', 'Explorer', '1977', 229552, 831884, 2),
+(195, 'Sedan', 1, 61, '9BTK5TEA5TYV11744', 'AVAILABLE', 'Chrysler', 'Model 3', '2016', 62483, 553662, 6),
+(196, 'Hatchback', 4, 11, '1RKSUGM5NXWM72989', 'SERVICE', 'Volvo', 'Camry', '1979', 324980, 974171, 7),
+(197, 'Coupe', 2, 10, 'GNH06CX95EW413856', 'OCCUPIED', 'Honda', 'Golf', '1971', 50211, 670959, 6),
+(198, 'Micro', 3, 14, 'CW5KLP63U9JP62125', 'SERVICE', 'Volkswagen', 'Fiesta', '1967', 380979, 333591, 7),
+(199, 'Sedan', 5, 42, 'MRL9SAWP29NF60697', 'AVAILABLE', 'Fiat', 'El Camino', '1975', 95282, 491219, 3),
+(200, 'Hatchback', 1, 27, 'NBJFMHYHZ2VW32027', 'OCCUPIED', 'Hyundai', 'Model Y', '2023', 168612, 995363, 5),
+(201, 'Sedan', 2, 8, '834P9PDSHMSS71898', 'OCCUPIED', 'Rolls Royce', 'Focus', '2020', 251601, 454693, 1),
+(202, 'Sedan', 1, 27, 'WWTUDLRGXXM979404', 'OCCUPIED', 'Tesla', 'Prius', '2007', 217269, 481962, 1),
+(203, 'Coupe', 1, 41, 'T3HY09XNFLK381036', 'OCCUPIED', 'Ferrari', 'Fortwo', '1952', 315430, 688560, 8),
+(204, 'Micro', 1, 54, '5ARS8N473NP765009', 'OCCUPIED', 'Bugatti', 'PT Cruiser', '2009', 168541, 904037, 5),
+(205, 'Coupe', 5, 9, 'SU0UBEB9T4U274238', 'OCCUPIED', 'Mercedes Benz', 'Silverado', '2020', 30952, 380120, 6),
+(206, 'Sedan', 6, 21, 'R2TNBV18VPXZ18457', 'OCCUPIED', 'Jeep', 'Grand Cherokee', '1976', 210321, 772469, 2),
+(207, 'Sedan', 1, 9, 'GU4T5J46N5XC60105', 'AVAILABLE', 'Rolls Royce', 'Model 3', '2018', 84516, 139518, 6),
+(208, 'Sedan', 2, 51, '82L56RS5C5VM23562', 'AVAILABLE', 'Chevrolet', 'ATS', '1991', 49407, 193621, 6),
+(209, 'Coupe', 6, 22, '7PX204EKPFP460122', 'SERVICE', 'Nissan', 'V90', '1950', 94654, 513078, 1),
+(210, 'Hatchback', 5, 24, 'A627J0W3PUK273907', 'OCCUPIED', 'Porsche', 'Fortwo', '1976', 140648, 984356, 8),
+(211, 'Coupe', 3, 52, 'NXTLHBF6XEYB44172', 'OCCUPIED', 'Ferrari', 'A8', '2009', 209209, 263064, 8),
+(212, 'Sedan', 1, 51, 'YS333B5SLPAA63998', 'OCCUPIED', 'Mini', 'Aventador', '2016', 381667, 246855, 7),
+(213, 'Hatchback', 3, 30, 'Z9T3V380DFD375191', 'SERVICE', 'Jeep', 'LeBaron', '1957', 120839, 907313, 6),
+(214, 'Hatchback', 2, 63, 'NNTZMEHFFZUP66623', 'SERVICE', 'Aston Martin', 'Grand Caravan', '2007', 211787, 501867, 5),
+(215, 'Sedan', 1, 20, '80VKVLZFYHZW86606', 'AVAILABLE', 'Tesla', 'A8', '1996', 105182, 742822, 1),
+(216, 'Sedan', 2, 46, '6Z4GK7CFF1XL14064', 'AVAILABLE', 'Smart', 'Durango', '2009', 171630, 595400, 6),
+(217, 'Hatchback', 6, 33, 'BD6ZYGA7EUWT69742', 'RESERVED', 'Mini', 'Grand Cherokee', '1959', 56212, 799510, 8),
+(218, 'Coupe', 5, 28, '8JH8SSBWF1AF26063', 'SERVICE', 'Hyundai', 'PT Cruiser', '1968', 349625, 596324, 8),
+(219, 'Coupe', 1, 40, '6L39GLMJHSCN18795', 'SERVICE', 'Chevrolet', 'Charger', '2014', 183860, 748480, 1),
+(220, 'SUV', 4, 47, 'LF4E3CZ04NKZ46124', 'RESERVED', 'Nissan', 'Land Cruiser', '1993', 279387, 136338, 1),
+(221, 'Hatchback', 4, 45, 'B74GUSVC4AWF36514', 'RESERVED', 'Ferrari', 'Taurus', '1974', 151371, 112973, 7),
+(222, 'Hatchback', 4, 16, 'KNDEDY4NZ3PM46672', 'OCCUPIED', 'Fiat', 'Grand Cherokee', '2017', 394874, 559092, 8),
+(223, 'Hatchback', 1, 14, '6NTGFBUW6BP515176', 'SERVICE', 'Jeep', 'XC90', '1990', 164947, 841940, 2),
+(224, 'Sedan', 2, 20, 'FFWSFHA8FYP368191', 'OCCUPIED', 'Mazda', '2', '1950', 292495, 221682, 2),
+(225, 'Coupe', 6, 59, 'L45Y5FW86GHB22902', 'AVAILABLE', 'Cadillac', 'Mustang', '1976', 372557, 696595, 6),
+(226, 'Sedan', 4, 25, '64FJ2XF1GAYC70315', 'AVAILABLE', 'Ford', 'Corvette', '2010', 140129, 605966, 3),
+(227, 'Hatchback', 2, 19, 'D62WUJ9XLALS90003', 'AVAILABLE', 'Mazda', 'Ranchero', '2022', 41725, 711722, 7),
+(228, 'Van', 4, 18, 'KT39VT57JKG162201', 'AVAILABLE', 'BMW', 'F-150', '1985', 361998, 613557, 1),
+(229, 'Micro', 4, 34, 'TMZTAHSTBVEF93846', 'OCCUPIED', 'Porsche', 'Malibu', '1981', 389256, 345638, 1),
+(230, 'Coupe', 1, 46, 'LY5WF3FPRHA645753', 'SERVICE', 'Rolls Royce', 'Mercielago', '2003', 284079, 313758, 2),
+(231, 'Coupe', 6, 59, 'LTA6SX1ZDERS23171', 'SERVICE', 'Polestar', 'CTS', '1974', 77786, 791061, 6),
+(232, 'SUV', 4, 20, 'ZGECS7BKXLKY47796', 'RESERVED', 'Fiat', '2', '1984', 174118, 479474, 2),
+(233, 'Hatchback', 5, 59, 'HNT9504WZJJ455429', 'OCCUPIED', 'Land Rover', 'Fortwo', '1974', 259391, 988105, 2),
+(234, 'Sedan', 6, 27, 'PHH0HRPNYPHD56727', 'AVAILABLE', 'Aston Martin', 'Model 3', '1967', 2980, 777015, 4),
+(235, 'Hatchback', 4, 28, 'LTM26PTWBZL641449', 'OCCUPIED', 'Maserati', 'Grand Cherokee', '1967', 155260, 859067, 1),
+(236, 'Sedan', 4, 57, 'GRUCRUG2CTXN27941', 'SERVICE', 'Hyundai', '911', '1983', 133907, 236783, 1),
+(237, 'Hatchback', 5, 65, 'KC4RS73MTBG329238', 'RESERVED', 'Chrysler', 'Accord', '1990', 399380, 360916, 8),
+(238, 'Micro', 5, 12, '8PF7CW35BZY018710', 'OCCUPIED', 'Land Rover', 'CTS', '1976', 28835, 911312, 1),
+(239, 'Hatchback', 3, 5, 'HCB0XJPFCWEN83891', 'AVAILABLE', 'Aston Martin', 'XTS', '1962', 297640, 359072, 1),
+(240, 'Coupe', 1, 59, 'W5AGNXKUPSXN24806', 'OCCUPIED', 'Polestar', 'Expedition', '2008', 103308, 939292, 5),
+(241, 'Hatchback', 4, 1, '8568C0UMLSUE41766', 'OCCUPIED', 'Jeep', 'Model S', '1983', 237668, 35256, 1),
+(242, 'Sedan', 1, 36, '1DYDXXTTJFL885423', 'AVAILABLE', 'Land Rover', 'Roadster', '2015', 146015, 166501, 1),
+(243, 'Coupe', 3, 36, 'FP4UK37L8ETL38235', 'OCCUPIED', 'BMW', 'Model T', '1956', 200541, 818056, 1),
+(244, 'Hatchback', 4, 5, '8ZVRX18T1UP482668', 'AVAILABLE', 'Audi', 'Challenger', '2006', 137542, 155641, 4),
+(245, 'Coupe', 2, 55, '00HJHNT8B6XD83633', 'OCCUPIED', 'Maserati', 'CTS', '1990', 354935, 575927, 6),
+(246, 'Coupe', 6, 50, '2H3XKSCVBVX848053', 'RESERVED', 'Jaguar', 'Land Cruiser', '1984', 281137, 357596, 1),
+(247, 'Hatchback', 4, 17, 'ZKUXUM2YM8P556318', 'RESERVED', 'Ferrari', 'Model X', '1999', 112455, 203024, 1),
+(248, 'Sedan', 3, 1, '5RXE202CTFXJ14336', 'OCCUPIED', 'Ford', 'Sentra', '2022', 47649, 326057, 5),
+(249, 'Hatchback', 2, 26, '78DB6BNZXXRU42313', 'RESERVED', 'Ferrari', 'PT Cruiser', '2013', 120216, 795350, 5),
+(250, 'Sedan', 3, 57, 'BF1N7M8FZXCV58182', 'AVAILABLE', 'Mazda', 'Camaro', '1974', 55239, 872091, 7),
+(251, 'Sedan', 1, 66, 'Z839METAW2EX82002', 'RESERVED', 'Land Rover', 'Alpine', '1958', 389928, 46444, 1),
+(252, 'Coupe', 6, 23, '167YV51N53GC45357', 'SERVICE', 'Volkswagen', 'Camaro', '1994', 370549, 717020, 3),
+(253, 'Sedan', 3, 55, 'LJDGD8APWZYX22564', 'OCCUPIED', 'Chrysler', 'Ranchero', '1995', 107753, 908682, 5),
+(254, 'Micro', 1, 66, '64J9K5GU7UTR98361', 'AVAILABLE', 'Lamborghini', 'Corvette', '1970', 223078, 697505, 6),
+(255, 'Micro', 1, 25, '7NUR5SCKZHN667868', 'OCCUPIED', 'Kia', 'Alpine', '1992', 80133, 764729, 2),
+(256, 'Hatchback', 1, 65, '7UGEGYSKZSL380143', 'AVAILABLE', 'Kia', 'ATS', '1952', 356294, 57772, 1),
+(257, 'Sedan', 1, 45, 'BP3UJD02BKYS80906', 'OCCUPIED', 'Chrysler', 'Volt', '1982', 270326, 259243, 2),
+(258, 'Coupe', 3, 29, 'CHK6WJN507XT87103', 'OCCUPIED', 'Land Rover', 'Ranchero', '1957', 125860, 522377, 1),
+(259, 'Micro', 4, 9, '8FKY0G1HGTZU39132', 'RESERVED', 'Polestar', 'Focus', '1964', 205536, 765518, 1),
+(260, 'SUV', 1, 27, 'VF1EE7TT0KUF60547', 'SERVICE', 'Mercedes Benz', 'Escalade', '1998', 336464, 532993, 1),
+(261, 'Sedan', 1, 37, 'L0Y2LZ3373SX69885', 'SERVICE', 'Cadillac', 'PT Cruiser', '2002', 362114, 709945, 1),
+(262, 'Hatchback', 1, 36, '9R9BKA9SF3BG40811', 'AVAILABLE', 'Chevrolet', 'Silverado', '1993', 138634, 203682, 2),
+(263, 'Micro', 5, 69, 'D4YH2DCBXYVD89883', 'OCCUPIED', 'Chevrolet', 'LeBaron', '2010', 300906, 312130, 6),
+(264, 'Coupe', 6, 29, 'R26CECASP1M239594', 'RESERVED', 'Polestar', '2', '1973', 73662, 496891, 5),
+(265, 'Sedan', 4, 7, 'A1P2DCKYBHDH12465', 'RESERVED', 'Kia', 'Land Cruiser', '1961', 53610, 660113, 5),
+(266, 'Coupe', 1, 16, '0HBZRGUBXCFC38912', 'AVAILABLE', 'Fiat', 'Impala', '2009', 203413, 473532, 4),
+(267, 'SUV', 2, 57, 'K460SH7TXEJP76973', 'RESERVED', 'Jeep', 'Grand Caravan', '1989', 24645, 569809, 6),
+(268, 'Coupe', 2, 32, '2PS0L5DVJELT19208', 'SERVICE', 'Kia', 'CTS', '1968', 368782, 441765, 1),
+(269, 'Coupe', 3, 56, 'BYU4ALGXLFM768631', 'AVAILABLE', 'Chevrolet', 'F-150', '2000', 73172, 51564, 1),
+(270, 'Sedan', 1, 45, 'MUKKGE0287AG56898', 'SERVICE', 'Aston Martin', 'Beetle', '1999', 311267, 924793, 5),
+(271, 'Hatchback', 3, 56, 'TESY8W9RLGL594551', 'OCCUPIED', 'Smart', 'V90', '1971', 142571, 702494, 7),
+(272, 'Coupe', 1, 8, 'LUNMZED3G8ZR40385', 'SERVICE', 'Cadillac', 'Camaro', '1984', 73180, 327787, 1),
+(273, 'Coupe', 5, 11, '7D34RK1VRCRE62049', 'RESERVED', 'Land Rover', 'Colorado', '1980', 73936, 293310, 7),
+(274, 'Sedan', 4, 28, 'ACLUG24W6FT433945', 'RESERVED', 'Tesla', 'Prius', '2001', 171778, 199283, 1),
+(275, 'Hatchback', 4, 38, 'XJNN3FTUP6VL75448', 'OCCUPIED', 'Land Rover', 'Challenger', '1969', 387025, 93290, 6),
+(276, 'Hatchback', 2, 37, '9ZZBB6WJ9TD730810', 'RESERVED', 'Audi', 'Grand Caravan', '1963', 352969, 862959, 6),
+(277, 'Sedan', 1, 2, 'SEB3065F7VFA90409', 'SERVICE', 'Polestar', 'XC90', '1961', 357662, 945502, 7),
+(278, 'Coupe', 4, 37, '4ZPGBG4AVKNW43606', 'OCCUPIED', 'Ford', 'Model 3', '1967', 71909, 140028, 6),
+(279, 'Coupe', 1, 41, 'DMDZ1FWAXEW056898', 'RESERVED', 'Fiat', '911', '2000', 341894, 490310, 1),
+(280, 'Sedan', 1, 23, 'JEZ2XUZW7SEJ32104', 'OCCUPIED', 'Rolls Royce', 'Model T', '2001', 165092, 547332, 6),
+(281, 'Hatchback', 2, 60, 'FBTX91GEVEA793294', 'SERVICE', 'Dodge', 'Silverado', '1983', 246389, 268462, 4),
+(282, 'Coupe', 1, 26, 'CP4JPRTTG5GX82634', 'AVAILABLE', 'Lamborghini', 'Colorado', '1963', 389941, 129933, 1),
+(283, 'Hatchback', 1, 16, 'CDR233FMA5YB77427', 'RESERVED', 'Rolls Royce', 'Corvette', '1988', 337864, 105509, 4),
+(284, 'Coupe', 4, 4, 'X7LZH2P26SCT92076', 'RESERVED', 'Maserati', 'Escalade', '1956', 170218, 648516, 8),
+(285, 'Coupe', 3, 39, '2UX3164T4HTS46061', 'AVAILABLE', 'Ferrari', 'XC90', '2012', 107971, 586481, 7),
+(286, 'Hatchback', 2, 44, 'M7E93J3YZKAS32963', 'AVAILABLE', 'Kia', 'Accord', '2021', 155403, 521983, 1),
+(287, 'Sedan', 1, 32, 'LZNL3Z2C1HY643079', 'RESERVED', 'Cadillac', 'Alpine', '1974', 184014, 17333, 6),
+(288, 'Hatchback', 4, 31, 'NRK21K3012YR53606', 'OCCUPIED', 'Mini', 'Altima', '2003', 183571, 878782, 1),
+(289, 'Micro', 1, 55, '2J9VXXEW66WL11493', 'RESERVED', 'Mini', 'Altima', '1997', 213518, 816393, 3),
+(290, 'Sedan', 1, 45, 'NHA59LXYPTPU56790', 'AVAILABLE', 'Mazda', 'Durango', '1952', 177730, 759600, 1),
+(291, 'Hatchback', 4, 57, 'J8K503240HEV83859', 'RESERVED', 'Chrysler', 'Malibu', '1969', 215265, 777221, 4),
+(292, 'Sedan', 4, 15, 'GP6HRZTGK8KE82575', 'SERVICE', 'Nissan', 'Cruze', '1964', 309659, 454997, 6),
+(293, 'Micro', 4, 41, 'YDAHSL2C49CG33001', 'SERVICE', 'Audi', 'Model 3', '1965', 240398, 416744, 2),
+(294, 'Coupe', 5, 21, '3T2BXHWN37T656726', 'OCCUPIED', 'Dodge', 'Camaro', '1981', 307805, 750123, 1),
+(295, 'Coupe', 5, 50, 'X991A1TXLHJL12146', 'OCCUPIED', 'Kia', 'Impala', '1990', 276911, 334077, 6),
+(296, 'Coupe', 1, 50, 'G6DLN5SSS5BP96137', 'RESERVED', 'Mazda', 'Fiesta', '1980', 39512, 842223, 8),
+(297, 'Micro', 3, 28, '6U2F45SNP8R736983', 'OCCUPIED', 'Volkswagen', 'El Camino', '1981', 127972, 959816, 1),
+(298, 'Micro', 1, 59, 'HZMR2VTKAURX74408', 'RESERVED', 'Kia', 'Impala', '2015', 227127, 706923, 1),
+(299, 'Coupe', 4, 3, 'B6YN0T85A0UT82224', 'SERVICE', 'Volvo', 'Land Cruiser', '1960', 361535, 564965, 3),
+(300, 'Sedan', 1, 44, '8W2US7ZYU3VW51006', 'OCCUPIED', 'Tesla', 'ATS', '1954', 54847, 951979, 8),
+(301, 'Coupe', 5, 4, 'SXC04HPK5VN527557', 'AVAILABLE', 'BMW', 'Expedition', '2016', 320634, 273618, 2),
+(302, 'Sedan', 2, 27, '9ZEL8VG8DBJ818173', 'AVAILABLE', 'Rolls Royce', 'Expedition', '1970', 29112, 48426, 5);
+
+--
+-- Wyzwalacze `pojazdy`
+--
+DELIMITER $$
+CREATE TRIGGER `usuniecie_auta` AFTER DELETE ON `pojazdy` FOR EACH ROW BEGIN
+	INSERT INTO `usuniete_pojazdy`(`id_pojazdu`, `id_ubezpieczenia`, `vin`, `marka`, `model`) 
+	VALUES (OLD.id, OLD.ubezpieczenie_id, OLD.vin, OLD.marka, OLD.model);
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -3960,7 +3970,7 @@ CREATE TABLE `pracownicy` (
 );
 
 --
--- Zrzut danych tabeli `pracownicy`
+-- Dumping data for table `pracownicy`
 --
 
 INSERT INTO `pracownicy` (`id`, `placowka_id`, `imie`, `nazwisko`, `data_urodzenia`, `ulica`, `miasto`, `kod_pocztowy`, `zarobki`, `pozycja`) VALUES
@@ -4002,7 +4012,7 @@ INSERT INTO `pracownicy` (`id`, `placowka_id`, `imie`, `nazwisko`, `data_urodzen
 CREATE TABLE `rezerwacje` (
   `id` int(11) NOT NULL,
   `klient_id` int(11) NOT NULL,
-  `pojazd_id` int(11) NOT NULL,
+  `pojazd_id` int(11) DEFAULT NULL,
   `lokacja_odbioru` int(11) NOT NULL,
   `lokacja_zwrotu` int(11) NOT NULL,
   `data_odbioru` date NOT NULL,
@@ -4010,7 +4020,7 @@ CREATE TABLE `rezerwacje` (
 );
 
 --
--- Zrzut danych tabeli `rezerwacje`
+-- Dumping data for table `rezerwacje`
 --
 
 INSERT INTO `rezerwacje` (`id`, `klient_id`, `pojazd_id`, `lokacja_odbioru`, `lokacja_zwrotu`, `data_odbioru`, `data_zwrotu`) VALUES
@@ -4021,7 +4031,7 @@ INSERT INTO `rezerwacje` (`id`, `klient_id`, `pojazd_id`, `lokacja_odbioru`, `lo
 (5, 2, 120, 3, 3, '2022-09-20', '2023-11-04'),
 (6, 83, 1, 4, 6, '2023-06-25', '2023-08-13'),
 (7, 86, 152, 1, 5, '2023-05-31', '2024-01-21'),
-(8, 44, 14, 2, 2, '2023-06-15', '2023-11-26'),
+(8, 44, NULL, 2, 2, '2023-06-15', '2023-11-26'),
 (9, 96, 158, 1, 2, '2023-04-01', '2023-11-19'),
 (10, 55, 160, 1, 5, '2023-04-15', '2024-01-17'),
 (11, 74, 99, 1, 6, '2023-06-19', '2024-01-05'),
@@ -4613,7 +4623,7 @@ INSERT INTO `rezerwacje` (`id`, `klient_id`, `pojazd_id`, `lokacja_odbioru`, `lo
 (597, 61, 280, 3, 3, '2022-09-18', '2024-04-13'),
 (598, 95, 271, 1, 1, '2022-12-10', '2023-12-22'),
 (599, 50, 135, 1, 2, '2023-02-24', '2023-11-21'),
-(600, 38, 14, 3, 2, '2022-10-10', '2024-02-13'),
+(600, 38, NULL, 3, 2, '2022-10-10', '2024-02-13'),
 (601, 84, 123, 2, 2, '2022-12-05', '2023-10-13'),
 (602, 41, 53, 1, 2, '2022-12-27', '2024-03-04'),
 (603, 37, 82, 1, 2, '2022-12-15', '2023-08-24'),
@@ -4708,79 +4718,79 @@ CREATE TABLE `ubezpieczenia` (
 );
 
 --
--- Zrzut danych tabeli `ubezpieczenia`
+-- Dumping data for table `ubezpieczenia`
 --
 
 INSERT INTO `ubezpieczenia` (`id`, `imie`, `polisa`, `koszt`) VALUES
-(1, 'Sauer - Murazik', '0xdadfbae797b2bbad7a6ffcdd5903b7abdc0ca9e5', '334061'),
-(2, 'Bayer, Stoltenberg and Dickens', '0xfda79af2dbaecaf42aafa18d8e430cb9f90cc212', '20494'),
-(3, 'Kassulke, Lind and Cole', '0xc0f5820d183ec2cb0eda85effc4f45f35c785fa4', '16083'),
-(4, 'Dickinson - Medhurst', '0x68dfcb9dfcaad6a8ea3ee358bf1a69d3a1bded6e', '53260'),
-(5, 'Armstrong Inc', '0xdf4006f2f0d78f8af2dda7ed3d67a02dce7a2e08', '228096'),
-(6, 'Gerlach Inc', '0x4a1ed7900e1bd5d3e55e2d9a2205ce48b1f1aba1', '185468'),
-(7, 'Lakin - Parker', '0x7b51503bde9cbaaae72a6fd2ecb4fb411f2b1c77', '879335'),
-(8, 'Dickens LLC', '0x5fecbbe46baec183d8c12fba858afda5ae06eb4e', '425306'),
-(9, 'Weissnat Inc', '0x64b4cef6c6b53f7fc66b1bf97d3bde4646bdaa3f', '659568'),
-(10, 'Auer - Hahn', '0x6add8bd64ceda7ffd66b678a535e4b4e7fdb4897', '45386'),
-(11, 'Lubowitz - Schultz', '0xe89afa93e0bf5bc8ac9ceedca2f3fe85298df02e', '739244'),
-(12, 'West - Hilpert', '0x1a1a6c3ccdd75cde3ea4e105ec2a3d5bebbac56c', '253988'),
-(13, 'Beahan Group', '0xaff573eea19a237b9cf1a9d51cbf74eeeaf7550a', '297336'),
-(14, 'Kuhlman, Miller and Walker', '0xdc7130c004ad4c2fa029d2fa8d0ac96a0c23660b', '773686'),
-(15, 'Renner Group', '0x122d6d84ca5f80b87cdc157ae7f90b48c7dcc1dc', '100735'),
-(16, 'Runte - Bogan', '0x4a91d4eca2a0b81d720a3e5d41eea88ae124d8b8', '634811'),
-(17, 'Collier LLC', '0x890bbacd88e16cf2497d1fa9dffb28632d7baa7f', '789975'),
-(18, 'Dare - Gerhold', '0x19681b9a32a2d0ec7ab8caaeb06c7ecc55bc302d', '607978'),
-(19, 'Wunsch Inc', '0x4d962c7022edbaf37db7bbaabcd9884e79f2b1f5', '529929'),
-(20, 'Kuphal Group', '0x8a5c1acf86eb3e96fae910fc71fba88eddb710df', '89812'),
-(21, 'Wiza - Nader', '0xd18d972d6fecdb1dde97a10fbeb5cb8b9dd7e09f', '431766'),
-(22, 'Jakubowski - Howe', '0x8b0e0d9fa8ccbce6db058c673ab29caddcd376f5', '804233'),
-(23, 'Ward - Braun', '0xe627844aeb4e612fc97c7ea46881aef6fa5bc4dc', '683652'),
-(24, 'Stark, Glover and Sauer', '0xcec98ef9dd4dc1e1b419823dbccb5efb8f990b9a', '699888'),
-(25, 'Witting and Sons', '0x54ee99e2aa3e1cabcacc33b6deb7ebceb10c7a7f', '581933'),
-(26, 'Anderson - Pollich', '0xe9fedf63ae1b4c6bacaf0bbe297e0707710b6bed', '539865'),
-(27, 'Crist Inc', '0x08df07a1eacc9782ea6b316decaecdb58dd75a69', '716340'),
-(28, 'Braun, Rohan and Schuster', '0x27cfa3ccb6b5cf7e2a501b0101fa8d3030dbbdef', '233822'),
-(29, 'Leuschke, Ledner and Herzog', '0xa83f1a8aebda5b5f62408c4e28ff0f5ddeefeea3', '379813'),
-(30, 'Price - Hartmann', '0x5c8f9dbcedb1925ea9fcc6f0ca67cff888dcb9bf', '388378'),
-(31, 'Durgan - Dibbert', '0x9f5db3444ca3cded1f1aef4a3adfb753ac7cdd50', '137646'),
-(32, 'Spinka, Bogisich and Weimann', '0xbde0fac1ea0529cb56ed30c1df4d12c229caeec8', '642948'),
-(33, 'Becker - Wintheiser', '0x0c36269cdfb58ccdbf73cd18ac63e84adf9f8736', '953320'),
-(34, 'Goodwin and Sons', '0xbb8e0ed6ba5ded7ecadd5eecf5c3ebcf1245d9da', '689541'),
-(35, 'Kshlerin - Ullrich', '0xa3ca1ff8a2b3da4be2b8e1b94b8bff621324abd1', '374838'),
-(36, 'Schumm - Lowe', '0xcdca119dccc8c5fc450f9e6fabd46b92ebbc1af9', '870110'),
-(37, 'Friesen - Rowe', '0xc85dbeea63e0df4c1aba4afeb2f0829dfc4ec1a6', '481766'),
-(38, 'Donnelly - Watsica', '0xe3ae01353bee89276ac895ace1c2eca7bbbad038', '744720'),
-(39, 'Boyle and Sons', '0x460b834342bf4fee1f87d7fe12af23bdfcdaa8b0', '340364'),
-(40, 'Lebsack - Pouros', '0xccf4a3d7cfa721d6ce637e36785aa98468fda152', '340359'),
-(41, 'Adams and Sons', '0xab462c5ed8bb3dc8debbac3aa1012354a86e53da', '768138'),
-(42, 'Lueilwitz Inc', '0x4978ddd0d8afa9d41bf2ab4bffbaf83ac3b22d16', '271248'),
-(43, 'Sporer, Greenholt and Wilkinson', '0x509abf6afbaea99e88aba9ebbae401faffa4e5d7', '383182'),
-(44, 'Quitzon LLC', '0x8dddfdf6a7b30af09ba797677f07ec4cda27c4ad', '83682'),
-(45, 'Satterfield, OReilly and Hayes', '0xc0bf824299d1dd76fafdcedf93efed768adac0db', '350135'),
-(46, 'Stiedemann, Corkery and Koepp', '0x4fdd359c7051eb1275ea194fff793b2d6dc8b8ab', '628430'),
-(47, 'Howell, Cummings and Conn', '0x8bcbed87a3c63e6ee6f3800eb2fe4b0e0f44abba', '300439'),
-(48, 'Denesik and Sons', '0x458cbd99c32ce02d2fabebdceddbd18df8a9f7b9', '989342'),
-(49, 'Kozey - Funk', '0xdc79bfb757b46dbfd5a48ddba7820ebb17d6b5ca', '160832'),
-(50, 'Swift and Sons', '0x52eb08bde2acbcfc69e0cfefafeeffa3a4aaebec', '611456'),
-(51, 'OKon, Brakus and Bergnaum', '0xcefe89a36bddcfe60b6ef5814e7aed5e1a60cb1b', '107130'),
-(52, 'Jerde - Schulist', '0x5bdea4a2f61e5aef21ba6f6bebcbbc611e73c6a3', '575746'),
-(53, 'Kerluke, VonRueden and Schneider', '0xe5c45a7b088c9f119dedc2f03dfbca6ee3b21cd8', '977014'),
-(54, 'Schultz LLC', '0x8cfb3f7c0aa2a086537aabedcfc2ef2798d797c1', '337641'),
-(55, 'Jacobi LLC', '0xa8382baa3cf3ff0405a50eff86eea5f6afbec6a2', '26534'),
-(56, 'Keeling, Boehm and Aufderhar', '0x42c274d0ba6f78514bd0df8cd4d0c5adc21898ec', '226720'),
-(57, 'Dibbert - Reichert', '0x5d7cfe13ba6865cd268ab8a5bc204ebbead5c9ed', '621467'),
-(58, 'Keeling Group', '0xb3e73c46d2add2d08c3ff76b47c9e28c7c48bb9a', '996281'),
-(59, 'Romaguera and Sons', '0xdaa016accdee8c7a6a63f9fff2a5517f46f21e3c', '660901'),
-(60, 'Hartmann, Reynolds and Sporer', '0xdbdcbc35d7b5420bca109b14ddaa3e63cda30deb', '270979'),
-(61, 'Schaefer LLC', '0xdfbee26cae01aa9acc55dfcab119c03aee221e51', '209349'),
-(62, 'Orn - Amore', '0xfd954d6fdf3555220acc77a91a9f8fd9661ddfbf', '510964'),
-(63, 'Osinski - Hammes', '0xdd8d04afdbe2af42d7ed86e7dafa181eda541bfb', '832545'),
-(64, 'Hamill - Ullrich', '0xb5dc00a088ee4f151bec1ebcae99aeca98288bea', '822187'),
-(65, 'Kunde - Nikolaus', '0x7dfedcf70f1b96cec1c4fbbdb9ee37ab3e6caded', '738200'),
-(66, 'Kreiger Inc', '0xfe163db0540c5d5aab07c60fcb37a88e74c143d8', '438652'),
-(67, 'Treutel, Shanahan and Wunsch', '0x5cc3dedfa9cdecdb3bf4df0ff795dd2d661a0aa1', '604623'),
-(68, 'Heaney - Windler', '0xf9f8e1f506ac7250b9baa51ac859ace0feeb9e1e', '411305'),
-(69, 'OConnell - Homenick', '0xfcf2aea1143e9b1dc37d05c1d4bdadea4d57e152', '812219');
+(1, 'Sauer - Murazik', '0xdadfbae797b2bbad7a6ffcdd5903b7abdc0ca9e5', 334061),
+(2, 'Bayer, Stoltenberg and Dickens', '0xfda79af2dbaecaf42aafa18d8e430cb9f90cc212', 20494),
+(3, 'Kassulke, Lind and Cole', '0xc0f5820d183ec2cb0eda85effc4f45f35c785fa4', 16083),
+(4, 'Dickinson - Medhurst', '0x68dfcb9dfcaad6a8ea3ee358bf1a69d3a1bded6e', 53260),
+(5, 'Armstrong Inc', '0xdf4006f2f0d78f8af2dda7ed3d67a02dce7a2e08', 228096),
+(6, 'Gerlach Inc', '0x4a1ed7900e1bd5d3e55e2d9a2205ce48b1f1aba1', 185468),
+(7, 'Lakin - Parker', '0x7b51503bde9cbaaae72a6fd2ecb4fb411f2b1c77', 879335),
+(8, 'Dickens LLC', '0x5fecbbe46baec183d8c12fba858afda5ae06eb4e', 425306),
+(9, 'Weissnat Inc', '0x64b4cef6c6b53f7fc66b1bf97d3bde4646bdaa3f', 659568),
+(10, 'Auer - Hahn', '0x6add8bd64ceda7ffd66b678a535e4b4e7fdb4897', 45386),
+(11, 'Lubowitz - Schultz', '0xe89afa93e0bf5bc8ac9ceedca2f3fe85298df02e', 739244),
+(12, 'West - Hilpert', '0x1a1a6c3ccdd75cde3ea4e105ec2a3d5bebbac56c', 253988),
+(13, 'Beahan Group', '0xaff573eea19a237b9cf1a9d51cbf74eeeaf7550a', 297336),
+(14, 'Kuhlman, Miller and Walker', '0xdc7130c004ad4c2fa029d2fa8d0ac96a0c23660b', 773686),
+(15, 'Renner Group', '0x122d6d84ca5f80b87cdc157ae7f90b48c7dcc1dc', 100735),
+(16, 'Runte - Bogan', '0x4a91d4eca2a0b81d720a3e5d41eea88ae124d8b8', 634811),
+(17, 'Collier LLC', '0x890bbacd88e16cf2497d1fa9dffb28632d7baa7f', 789975),
+(18, 'Dare - Gerhold', '0x19681b9a32a2d0ec7ab8caaeb06c7ecc55bc302d', 607978),
+(19, 'Wunsch Inc', '0x4d962c7022edbaf37db7bbaabcd9884e79f2b1f5', 529929),
+(20, 'Kuphal Group', '0x8a5c1acf86eb3e96fae910fc71fba88eddb710df', 89812),
+(21, 'Wiza - Nader', '0xd18d972d6fecdb1dde97a10fbeb5cb8b9dd7e09f', 431766),
+(22, 'Jakubowski - Howe', '0x8b0e0d9fa8ccbce6db058c673ab29caddcd376f5', 804233),
+(23, 'Ward - Braun', '0xe627844aeb4e612fc97c7ea46881aef6fa5bc4dc', 683652),
+(24, 'Stark, Glover and Sauer', '0xcec98ef9dd4dc1e1b419823dbccb5efb8f990b9a', 699888),
+(25, 'Witting and Sons', '0x54ee99e2aa3e1cabcacc33b6deb7ebceb10c7a7f', 581933),
+(26, 'Anderson - Pollich', '0xe9fedf63ae1b4c6bacaf0bbe297e0707710b6bed', 539865),
+(27, 'Crist Inc', '0x08df07a1eacc9782ea6b316decaecdb58dd75a69', 716340),
+(28, 'Braun, Rohan and Schuster', '0x27cfa3ccb6b5cf7e2a501b0101fa8d3030dbbdef', 233822),
+(29, 'Leuschke, Ledner and Herzog', '0xa83f1a8aebda5b5f62408c4e28ff0f5ddeefeea3', 379813),
+(30, 'Price - Hartmann', '0x5c8f9dbcedb1925ea9fcc6f0ca67cff888dcb9bf', 388378),
+(31, 'Durgan - Dibbert', '0x9f5db3444ca3cded1f1aef4a3adfb753ac7cdd50', 137646),
+(32, 'Spinka, Bogisich and Weimann', '0xbde0fac1ea0529cb56ed30c1df4d12c229caeec8', 642948),
+(33, 'Becker - Wintheiser', '0x0c36269cdfb58ccdbf73cd18ac63e84adf9f8736', 953320),
+(34, 'Goodwin and Sons', '0xbb8e0ed6ba5ded7ecadd5eecf5c3ebcf1245d9da', 689541),
+(35, 'Kshlerin - Ullrich', '0xa3ca1ff8a2b3da4be2b8e1b94b8bff621324abd1', 374838),
+(36, 'Schumm - Lowe', '0xcdca119dccc8c5fc450f9e6fabd46b92ebbc1af9', 870110),
+(37, 'Friesen - Rowe', '0xc85dbeea63e0df4c1aba4afeb2f0829dfc4ec1a6', 481766),
+(38, 'Donnelly - Watsica', '0xe3ae01353bee89276ac895ace1c2eca7bbbad038', 744720),
+(39, 'Boyle and Sons', '0x460b834342bf4fee1f87d7fe12af23bdfcdaa8b0', 340364),
+(40, 'Lebsack - Pouros', '0xccf4a3d7cfa721d6ce637e36785aa98468fda152', 340359),
+(41, 'Adams and Sons', '0xab462c5ed8bb3dc8debbac3aa1012354a86e53da', 768138),
+(42, 'Lueilwitz Inc', '0x4978ddd0d8afa9d41bf2ab4bffbaf83ac3b22d16', 271248),
+(43, 'Sporer, Greenholt and Wilkinson', '0x509abf6afbaea99e88aba9ebbae401faffa4e5d7', 383182),
+(44, 'Quitzon LLC', '0x8dddfdf6a7b30af09ba797677f07ec4cda27c4ad', 83682),
+(45, 'Satterfield, OReilly and Hayes', '0xc0bf824299d1dd76fafdcedf93efed768adac0db', 350135),
+(46, 'Stiedemann, Corkery and Koepp', '0x4fdd359c7051eb1275ea194fff793b2d6dc8b8ab', 628430),
+(47, 'Howell, Cummings and Conn', '0x8bcbed87a3c63e6ee6f3800eb2fe4b0e0f44abba', 300439),
+(48, 'Denesik and Sons', '0x458cbd99c32ce02d2fabebdceddbd18df8a9f7b9', 989342),
+(49, 'Kozey - Funk', '0xdc79bfb757b46dbfd5a48ddba7820ebb17d6b5ca', 160832),
+(50, 'Swift and Sons', '0x52eb08bde2acbcfc69e0cfefafeeffa3a4aaebec', 611456),
+(51, 'OKon, Brakus and Bergnaum', '0xcefe89a36bddcfe60b6ef5814e7aed5e1a60cb1b', 107130),
+(52, 'Jerde - Schulist', '0x5bdea4a2f61e5aef21ba6f6bebcbbc611e73c6a3', 575746),
+(53, 'Kerluke, VonRueden and Schneider', '0xe5c45a7b088c9f119dedc2f03dfbca6ee3b21cd8', 977014),
+(54, 'Schultz LLC', '0x8cfb3f7c0aa2a086537aabedcfc2ef2798d797c1', 337641),
+(55, 'Jacobi LLC', '0xa8382baa3cf3ff0405a50eff86eea5f6afbec6a2', 26534),
+(56, 'Keeling, Boehm and Aufderhar', '0x42c274d0ba6f78514bd0df8cd4d0c5adc21898ec', 226720),
+(57, 'Dibbert - Reichert', '0x5d7cfe13ba6865cd268ab8a5bc204ebbead5c9ed', 621467),
+(58, 'Keeling Group', '0xb3e73c46d2add2d08c3ff76b47c9e28c7c48bb9a', 996281),
+(59, 'Romaguera and Sons', '0xdaa016accdee8c7a6a63f9fff2a5517f46f21e3c', 660901),
+(60, 'Hartmann, Reynolds and Sporer', '0xdbdcbc35d7b5420bca109b14ddaa3e63cda30deb', 270979),
+(61, 'Schaefer LLC', '0xdfbee26cae01aa9acc55dfcab119c03aee221e51', 209349),
+(62, 'Orn - Amore', '0xfd954d6fdf3555220acc77a91a9f8fd9661ddfbf', 510964),
+(63, 'Osinski - Hammes', '0xdd8d04afdbe2af42d7ed86e7dafa181eda541bfb', 832545),
+(64, 'Hamill - Ullrich', '0xb5dc00a088ee4f151bec1ebcae99aeca98288bea', 822187),
+(65, 'Kunde - Nikolaus', '0x7dfedcf70f1b96cec1c4fbbdb9ee37ab3e6caded', 738200),
+(66, 'Kreiger Inc', '0xfe163db0540c5d5aab07c60fcb37a88e74c143d8', 438652),
+(67, 'Treutel, Shanahan and Wunsch', '0x5cc3dedfa9cdecdb3bf4df0ff795dd2d661a0aa1', 604623),
+(68, 'Heaney - Windler', '0xf9f8e1f506ac7250b9baa51ac859ace0feeb9e1e', 411305),
+(69, 'OConnell - Homenick', '0xfcf2aea1143e9b1dc37d05c1d4bdadea4d57e152', 812219);
 
 -- --------------------------------------------------------
 
@@ -4797,6 +4807,13 @@ CREATE TABLE `usuniete_pojazdy` (
   `model` varchar(255) NOT NULL
 );
 
+--
+-- Dumping data for table `usuniete_pojazdy`
+--
+
+INSERT INTO `usuniete_pojazdy` (`id`, `id_pojazdu`, `id_ubezpieczenia`, `vin`, `marka`, `model`) VALUES
+(1, 14, 66, 'NN8UDY8BSBXF95050', 'Fiat', 'CX-9');
+
 -- --------------------------------------------------------
 
 --
@@ -4811,7 +4828,7 @@ CREATE TABLE `wypozyczenia` (
 );
 
 --
--- Zrzut danych tabeli `wypozyczenia`
+-- Dumping data for table `wypozyczenia`
 --
 
 INSERT INTO `wypozyczenia` (`id`, `pracownik_id`, `placowka_id`, `rezerwacja_id`) VALUES
@@ -5489,7 +5506,7 @@ INSERT INTO `wypozyczenia` (`id`, `pracownik_id`, `placowka_id`, `rezerwacja_id`
 --
 DROP TABLE IF EXISTS `ilosc_samochodow_po_dostepnosci`;
 
-CREATE VIEW `ilosc_samochodow_po_dostepnosci`  AS SELECT `pojazdy`.`dostepnosc` AS `dostepnosc`, count(`pojazdy`.`dostepnosc`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`dostepnosc`;
+CREATE VIEW `ilosc_samochodow_po_dostepnosci`  AS SELECT `pojazdy`.`dostepnosc` AS `dostepnosc`, count(`pojazdy`.`dostepnosc`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`dostepnosc` ;
 
 -- --------------------------------------------------------
 
@@ -5498,7 +5515,7 @@ CREATE VIEW `ilosc_samochodow_po_dostepnosci`  AS SELECT `pojazdy`.`dostepnosc` 
 --
 DROP TABLE IF EXISTS `ilosc_samochodow_po_typie`;
 
-CREATE VIEW `ilosc_samochodow_po_typie`  AS SELECT `pojazdy`.`typ` AS `typ`, count(`pojazdy`.`typ`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`typ`;
+CREATE VIEW `ilosc_samochodow_po_typie`  AS SELECT `pojazdy`.`typ` AS `typ`, count(`pojazdy`.`typ`) AS `amount` FROM `pojazdy` GROUP BY `pojazdy`.`typ` ;
 
 -- --------------------------------------------------------
 
@@ -5507,7 +5524,7 @@ CREATE VIEW `ilosc_samochodow_po_typie`  AS SELECT `pojazdy`.`typ` AS `typ`, cou
 --
 DROP TABLE IF EXISTS `piec_najaktywniejszych_klientow`;
 
-CREATE VIEW `piec_najaktywniejszych_klientow`  AS SELECT `klienci`.`id` AS `id`, `klienci`.`imie` AS `imie`, `klienci`.`nazwisko` AS `nazwisko`, `klienci`.`numer_telefonu` AS `numer_telefonu`, `klienci`.`ulica` AS `ulica`, `klienci`.`miasto` AS `miasto`, `klienci`.`kod_pocztowy` AS `kod_pocztowy`, `klienci`.`prawo_jazdy` AS `prawo_jazdy`, count(`rezerwacje`.`id`) AS `reservation_amount` FROM (`klienci` join `rezerwacje` on(`klienci`.`id` = `rezerwacje`.`klient_id`)) GROUP BY `klienci`.`id` ORDER BY count(`rezerwacje`.`id`) DESC LIMIT 5;
+CREATE VIEW `piec_najaktywniejszych_klientow`  AS SELECT `klienci`.`id` AS `id`, `klienci`.`imie` AS `imie`, `klienci`.`nazwisko` AS `nazwisko`, `klienci`.`numer_telefonu` AS `numer_telefonu`, `klienci`.`ulica` AS `ulica`, `klienci`.`miasto` AS `miasto`, `klienci`.`kod_pocztowy` AS `kod_pocztowy`, `klienci`.`prawo_jazdy` AS `prawo_jazdy`, count(`rezerwacje`.`id`) AS `reservation_amount` FROM (`klienci` join `rezerwacje` on(`klienci`.`id` = `rezerwacje`.`klient_id`)) GROUP BY `klienci`.`id` ORDER BY count(`rezerwacje`.`id`) DESC LIMIT 0, 5 ;
 
 --
 -- Indeksy dla zrzutów tabel
@@ -5577,95 +5594,95 @@ ALTER TABLE `wypozyczenia`
   ADD KEY `rezerwacja_id` (`rezerwacja_id`);
 
 --
--- AUTO_INCREMENT dla zrzuconych tabel
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT dla tabeli `klienci`
+-- AUTO_INCREMENT for table `klienci`
 --
 ALTER TABLE `klienci`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
 
 --
--- AUTO_INCREMENT dla tabeli `placowki`
+-- AUTO_INCREMENT for table `placowki`
 --
 ALTER TABLE `placowki`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT dla tabeli `platnosci`
+-- AUTO_INCREMENT for table `platnosci`
 --
 ALTER TABLE `platnosci`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4702;
 
 --
--- AUTO_INCREMENT dla tabeli `pojazdy`
+-- AUTO_INCREMENT for table `pojazdy`
 --
 ALTER TABLE `pojazdy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=303;
 
 --
--- AUTO_INCREMENT dla tabeli `pracownicy`
+-- AUTO_INCREMENT for table `pracownicy`
 --
 ALTER TABLE `pracownicy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
--- AUTO_INCREMENT dla tabeli `rezerwacje`
+-- AUTO_INCREMENT for table `rezerwacje`
 --
 ALTER TABLE `rezerwacje`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=667;
 
 --
--- AUTO_INCREMENT dla tabeli `ubezpieczenia`
+-- AUTO_INCREMENT for table `ubezpieczenia`
 --
 ALTER TABLE `ubezpieczenia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
 
 --
--- AUTO_INCREMENT dla tabeli `usuniete_pojazdy`
+-- AUTO_INCREMENT for table `usuniete_pojazdy`
 --
 ALTER TABLE `usuniete_pojazdy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-  
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
 --
--- AUTO_INCREMENT dla tabeli `wypozyczenia`
+-- AUTO_INCREMENT for table `wypozyczenia`
 --
 ALTER TABLE `wypozyczenia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=667;
 
 --
--- Ograniczenia dla zrzutów tabel
+-- Constraints for dumped tables
 --
 
 --
--- Ograniczenia dla tabeli `platnosci`
+-- Constraints for table `platnosci`
 --
 ALTER TABLE `platnosci`
   ADD CONSTRAINT `platnosci_ibfk_1` FOREIGN KEY (`rezerwacja_id`) REFERENCES `rezerwacje` (`id`);
 
 --
--- Ograniczenia dla tabeli `pojazdy`
+-- Constraints for table `pojazdy`
 --
 ALTER TABLE `pojazdy`
   ADD CONSTRAINT `pojazdy_ibfk_1` FOREIGN KEY (`ubezpieczenie_id`) REFERENCES `ubezpieczenia` (`id`),
   ADD CONSTRAINT `pojazdy_ibfk_2` FOREIGN KEY (`placowka_id`) REFERENCES `placowki` (`id`);
 
 --
--- Ograniczenia dla tabeli `pracownicy`
+-- Constraints for table `pracownicy`
 --
 ALTER TABLE `pracownicy`
   ADD CONSTRAINT `pracownicy_ibfk_1` FOREIGN KEY (`placowka_id`) REFERENCES `placowki` (`id`);
 
 --
--- Ograniczenia dla tabeli `rezerwacje`
+-- Constraints for table `rezerwacje`
 --
 ALTER TABLE `rezerwacje`
   ADD CONSTRAINT `rezerwacje_ibfk_1` FOREIGN KEY (`klient_id`) REFERENCES `klienci` (`id`),
-  ADD CONSTRAINT `rezerwacje_ibfk_2` FOREIGN KEY (`pojazd_id`) REFERENCES `pojazdy` (`id`);
+  ADD CONSTRAINT `rezerwacje_ibfk_2` FOREIGN KEY (`pojazd_id`) REFERENCES `pojazdy` (`id`) ON DELETE SET NULL;
 
 --
--- Ograniczenia dla tabeli `wypozyczenia`
+-- Constraints for table `wypozyczenia`
 --
 ALTER TABLE `wypozyczenia`
   ADD CONSTRAINT `wypozyczenia_ibfk_1` FOREIGN KEY (`placowka_id`) REFERENCES `placowki` (`id`),
