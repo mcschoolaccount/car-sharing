@@ -2,6 +2,18 @@
 Dokumentacja opisuje strukturę i funkcje bazy danych obsługującej wypożyczanie samochodów.  
 Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochodów
 
+## Spis treści
+
+1. [Tabele](#tabele)
+2. [Widoki](#widoki)
+3. [Triggery](#triggery)
+4. [Procedury](#procedury)
+5. [ERD](#erd)
+6. [Relacje](#relacje)
+7. [Enumy](#enumy)
+8. [Podsumowanie](#podsumowanie)
+
+
 ## Tabele
 1. **klienci**
    - Pola: id `INT`, imie `VARCHAR(255)`, nazwisko `VARCHAR(255)`, numer_telefonu `VARCHAR(15)`, ulica `VARCHAR(255)`, miasto `VARCHAR(255)`, kod_pocztowy `VARCHAR(5)`, prawo_jazdy `VARCHAR(255)` 
