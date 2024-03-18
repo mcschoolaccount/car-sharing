@@ -5524,7 +5524,7 @@ CREATE VIEW `ilosc_samochodow_po_typie`  AS SELECT `pojazdy`.`typ` AS `typ`, cou
 --
 DROP TABLE IF EXISTS `piec_najaktywniejszych_klientow`;
 
-CREATE VIEW `piec_najaktywniejszych_klientow`  AS SELECT `klienci`.`id` AS `id`, `klienci`.`imie` AS `imie`, `klienci`.`nazwisko` AS `nazwisko`, `klienci`.`numer_telefonu` AS `numer_telefonu`, `klienci`.`ulica` AS `ulica`, `klienci`.`miasto` AS `miasto`, `klienci`.`kod_pocztowy` AS `kod_pocztowy`, `klienci`.`prawo_jazdy` AS `prawo_jazdy`, count(`rezerwacje`.`id`) AS `liczba_rezerwacji` FROM (`klienci` join `rezerwacje` on(`klienci`.`id` = `rezerwacje`.`klient_id`)) GROUP BY `klienci`.`id` ORDER BY count(`rezerwacje`.`id`) DESC LIMIT 0, 55  ;
+CREATE VIEW `piec_najaktywniejszych_klientow`  AS SELECT `klienci`.`id` AS `id`, `klienci`.`imie` AS `imie`, `klienci`.`nazwisko` AS `nazwisko`, `klienci`.`numer_telefonu` AS `numer_telefonu`, `klienci`.`ulica` AS `ulica`, `klienci`.`miasto` AS `miasto`, `klienci`.`kod_pocztowy` AS `kod_pocztowy`, `klienci`.`prawo_jazdy` AS `prawo_jazdy`, count(`rezerwacje`.`id`) AS `liczba_rezerwacji` FROM (`klienci` join `rezerwacje` on(`klienci`.`id` = `rezerwacje`.`klient_id`)) GROUP BY `klienci`.`id` ORDER BY count(`rezerwacje`.`id`) DESC LIMIT 5  ;
 
 --
 -- Indeksy dla zrzutów tabel
