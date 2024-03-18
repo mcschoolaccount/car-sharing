@@ -41,7 +41,7 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
 
 ## Widoki
 1. **ilosc_samochodow_po_dostepnosci**
-   - Pola: dostepnosc `ENUM`, amount `BIGINT`
+   - Pola: dostepnosc `ENUM`, amount `INT`
    - Opis: Liczba samochodów w zależności od dostępności.
     - Przykładowy wynik:  
     ![](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/w1.png)
@@ -53,7 +53,7 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
     ![](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/w2.png)
 
 3. **piec_najaktywniejszych_klientow**
-   - Pola: id `INT`, imie `VARCHAR(255)`, nazwisko `VARCHAR(255)`, numer_telefonu `VARCHAR(15)`, ulica `VARCHAR(255)`, miasto `VARCHAR(255)`, kod_pocztowy `VARCHAR(5)`, prawo_jazdy `VARCHAR(255)`, reservation_amount `BIGINT`
+   - Pola: id `INT`, imie `VARCHAR(255)`, nazwisko `VARCHAR(255)`, numer_telefonu `VARCHAR(15)`, ulica `VARCHAR(255)`, miasto `VARCHAR(255)`, kod_pocztowy `VARCHAR(5)`, prawo_jazdy `VARCHAR(255)`, reservation_amount `INT`
    - Opis: Pięciu najaktywniejszych klientów.
     - Przykładowy wynik:  
     ![](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/w3.png)
