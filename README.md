@@ -34,7 +34,7 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
    - Pola: id `INT`, klient_id `INT`, pojazd_id `INT` NULL, lokacja_odbioru `INT`, lokacja_zwrotu `INT`, data_odbioru `DATE`, data_zwrotu `DATE` 
 
 7. **ubezpieczenia**
-    - Pola: id `INT`, imie `VARCHAR(255)`, polisa `VARCHAR(255)`, koszt `DECIMAL`
+    - Pola: id `INT`, nazwa `VARCHAR(255)`, polisa `VARCHAR(255)`, koszt `DECIMAL`
 
 8. **wypozyczenia**
     - Pola: id `INT`, pracownik_id `INT`, placowka_id `INT`, rezerwacja_id `INT`
