@@ -4712,7 +4712,7 @@ DELIMITER ;
 
 CREATE TABLE `ubezpieczenia` (
   `id` int(11) NOT NULL,
-  `imie` varchar(255) NOT NULL,
+  `nazwa` varchar(255) NOT NULL,
   `polisa` varchar(255) NOT NULL,
   `koszt` decimal(10,0) NOT NULL
 );
@@ -4721,7 +4721,7 @@ CREATE TABLE `ubezpieczenia` (
 -- Dumping data for table `ubezpieczenia`
 --
 
-INSERT INTO `ubezpieczenia` (`id`, `imie`, `polisa`, `koszt`) VALUES
+INSERT INTO `ubezpieczenia` (`id`, `nazwa`, `polisa`, `koszt`) VALUES
 (1, 'Sauer - Murazik', '0xdadfbae797b2bbad7a6ffcdd5903b7abdc0ca9e5', 334061),
 (2, 'Bayer, Stoltenberg and Dickens', '0xfda79af2dbaecaf42aafa18d8e430cb9f90cc212', 20494),
 (3, 'Kassulke, Lind and Cole', '0xc0f5820d183ec2cb0eda85effc4f45f35c785fa4', 16083),
