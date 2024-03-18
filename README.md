@@ -19,7 +19,7 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
    - Pola: id `INT`, imie `VARCHAR(255)`, nazwisko `VARCHAR(255)`, numer_telefonu `VARCHAR(15)`, ulica `VARCHAR(255)`, miasto `VARCHAR(255)`, kod_pocztowy `VARCHAR(5)`, prawo_jazdy `VARCHAR(255)` 
 
 2. **placowki**
-   - Pola: id `INT`, imie `VARCHAR(255)`, ulica `VARCHAR(255)`, miasto `VARCHAR(255)`, wojewodztwo `VARCHAR(255)`, kraj `VARCHAR(255)`, kod_pocztowy `VARCHAR(5)`
+   - Pola: id `INT`, nazwa `VARCHAR(255)`, ulica `VARCHAR(255)`, miasto `VARCHAR(255)`, wojewodztwo `VARCHAR(255)`, kraj `VARCHAR(255)`, kod_pocztowy `VARCHAR(5)`
 
 3. **platnosci**
    - Pola: id `INT`, data `DATETIME`, kwota `INT`, rezerwacja_id `INT`
