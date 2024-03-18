@@ -228,7 +228,7 @@ CREATE TABLE `piec_najaktywniejszych_klientow` (
 
 CREATE TABLE `placowki` (
   `id` int(11) NOT NULL,
-  `imie` varchar(255) NOT NULL,
+  `nazwa` varchar(255) NOT NULL,
   `ulica` varchar(255) NOT NULL,
   `miasto` varchar(255) NOT NULL,
   `wojewodztwo` varchar(255) NOT NULL,
@@ -240,7 +240,7 @@ CREATE TABLE `placowki` (
 -- Dumping data for table `placowki`
 --
 
-INSERT INTO `placowki` (`id`, `imie`, `ulica`, `miasto`, `wojewodztwo`, `kraj`, `kod_pocztowy`) VALUES
+INSERT INTO `placowki` (`id`, `nazwa`, `ulica`, `miasto`, `wojewodztwo`, `kraj`, `kod_pocztowy`) VALUES
 (1, 'Gdynia #1', 'kwiatowa 8', 'Gdynia', 'Pomorskie', 'Poland', '84-30'),
 (2, 'Sopot #5', 'morska 12', 'Sopot', 'Pomorskie', 'Poland', '21-32'),
 (3, 'Gdynia #4', 'uliczna 21', 'Gdynia', 'Pomorskie', 'Poland', '84300'),
