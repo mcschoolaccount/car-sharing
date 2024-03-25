@@ -39,8 +39,8 @@ Baza danych została zaprojektowana w celu zarządzania wypożyczalnią samochod
 8. **wypozyczenia**
     - Pola: id `INT`, pracownik_id `INT`, placowka_id `INT`, rezerwacja_id `INT`
 
-9. **usuniete_auta**
-    - Pola: id `INT`, id_pojazdu `INT`, id_ubezpieczenia `INT`, vin `VARCHAR(50)`, marka `VARCHAR(255)`, model `VARCHAR(255)`
+9. **usuniete_pojazdy**
+    - Pola: id `INT`, pojazd_id `INT`, ubezpieczenia_id `INT`, vin `VARCHAR(50)`, marka `VARCHAR(255)`, model `VARCHAR(255)`
 
 ## Widoki
 1. **ilosc_samochodow_po_dostepnosci**
