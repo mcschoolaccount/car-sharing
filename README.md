@@ -201,7 +201,7 @@ WHERE placowka_id = dep_id`;```
      - `placowka_id` odnosi się do `placowki.id`
      - `rezerwacja_id` odnosi się do `rezerwacje.id`
 
-9. Tabela `usuniete_auta`
+9. Tabela `usuniete_pojazdy`
     - **Klucz główny:** `id`
 
 ## Enumy
