@@ -160,7 +160,7 @@ WHERE placowka_id = dep_id`;```
 
 ## ERD
 
-   ![](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/erd.png)
+   ![](https://raw.githubusercontent.com/mcschoolaccount/car-sharing/main/erd2.png)
 
 ## Relacje
 1. Tabela `klienci`
